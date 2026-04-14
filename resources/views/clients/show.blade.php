@@ -1,131 +1,122 @@
 <x-app-layout>
     <x-slot name="title">{{ $client->name }}</x-slot>
 
-    {{-- Header do cliente --}}
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('clients.index') }}" class="text-gray-400 hover:text-gray-900 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            </a>
-            <div class="flex items-center gap-3">
-                <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/30 text-primary-foreground font-bold text-sm">
-                    {{ strtoupper(substr($client->name, 0, 2)) }}
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-gray-900">{{ $client->name }}</h1>
-                    @if (!empty($client->channels))
-                        <div class="flex flex-wrap gap-1 mt-0.5">
-                            @foreach ($client->channels as $channel)
-                                <span class="text-xs text-gray-500">{{ $channel }}{{ !$loop->last ? ' ·' : '' }}</span>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Sub-navegação --}}
-    <x-client-subnav :client="$client" />
+    <x-slot name="clientBar">
+        <x-client-subnav :client="$client" />
+    </x-slot>
 
     {{-- KPIs --}}
     <div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-8">
         <div class="card p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Visitas</div>
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Alcance</div>
                 <div class="w-8 h-8 rounded-none bg-blue-50 flex items-center justify-center">
                     <span class="material-symbols-outlined text-blue-500 text-lg">visibility</span>
                 </div>
             </div>
-            <div class="text-2xl font-bold text-gray-900">12.4K</div>
-            <div class="text-xs text-green-600 font-medium mt-1">+18% vs mês anterior</div>
+            <div class="text-2xl font-bold text-gray-900">{{ $metrics['reach'] }}</div>
+            <div class="text-xs text-green-600 font-medium mt-1">{{ $metrics['reach_change'] }} vs mês anterior</div>
         </div>
 
         <div class="card p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Posts ativos</div>
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Postagens</div>
                 <div class="w-8 h-8 rounded-none bg-primary/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary-foreground text-lg">campaign</span>
+                    <span class="material-symbols-outlined text-primary-foreground text-lg">edit_note</span>
                 </div>
             </div>
-            <div class="text-2xl font-bold text-gray-900">{{ count($activePosts) }}</div>
-            <div class="text-xs text-gray-500 font-medium mt-1">em andamento</div>
+            <div class="text-2xl font-bold text-gray-900">{{ $metrics['posts_count'] }}</div>
+            <div class="text-xs text-gray-500 font-medium mt-1">total criadas</div>
         </div>
 
         <div class="card p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Leads no mês</div>
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Campanhas</div>
                 <div class="w-8 h-8 rounded-none bg-violet-50 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-violet-500 text-lg">person_add</span>
+                    <span class="material-symbols-outlined text-violet-500 text-lg">campaign</span>
                 </div>
             </div>
-            <div class="text-2xl font-bold text-gray-900">{{ $totalLeads }}</div>
-            <div class="text-xs text-gray-500 font-medium mt-1">total acumulado</div>
+            <div class="text-2xl font-bold text-gray-900">{{ $metrics['campaigns_active'] }}</div>
+            <div class="text-xs text-gray-500 font-medium mt-1">ativas</div>
         </div>
 
         <div class="card p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Conversão</div>
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Engajamento</div>
                 <div class="w-8 h-8 rounded-none bg-amber-50 flex items-center justify-center">
                     <span class="material-symbols-outlined text-amber-500 text-lg">trending_up</span>
                 </div>
             </div>
-            <div class="text-2xl font-bold text-gray-900">{{ $conversionRate }}%</div>
-            <div class="text-xs text-gray-500 font-medium mt-1">última etapa do funil</div>
+            <div class="text-2xl font-bold text-gray-900">{{ $metrics['engagement'] }}</div>
+            <div class="text-xs text-green-600 font-medium mt-1">{{ $metrics['engagement_change'] }}</div>
         </div>
     </div>
 
-    {{-- Conteúdo principal: Postagens ativas + Visitas --}}
+    {{-- Conteúdo principal --}}
     <div class="grid gap-6 lg:grid-cols-3">
-        {{-- Postagens em andamento --}}
+        {{-- Postagens recentes --}}
         <div class="lg:col-span-2">
             <div class="card">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <h2 class="font-semibold text-gray-900">Postagens em andamento</h2>
-                    <a href="{{ route('clients.posts', $client) }}" class="text-sm text-gray-500 hover:text-primary-foreground font-medium transition-colors">Ver todas →</a>
+                    <h2 class="font-semibold text-gray-900">Últimas postagens</h2>
+                    <a href="{{ route('clients.posts', $client) }}"
+                        class="text-sm text-gray-500 hover:text-primary-foreground font-medium transition-colors">Ver
+                        todas →</a>
                 </div>
                 <div class="divide-y divide-gray-50">
-                    @forelse ($activePosts as $post)
-                        <div class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors">
-                            <div class="w-10 h-10 rounded-none {{ $post['platform_bg'] }} flex items-center justify-center flex-shrink-0">
-                                <span class="material-symbols-outlined text-[18px] text-gray-700">{{ $post['platform_icon'] }}</span>
+                    @forelse ($recentPosts as $post)
+                        <a href="{{ route('posts.edit', [$client, $post]) }}"
+                            class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors group">
+                            <div
+                                class="w-10 h-10 rounded-none bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                                <span
+                                    class="material-symbols-outlined text-[18px] text-gray-500">{{ $post->content_type_icon }}</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="font-medium text-sm text-gray-900 truncate">{{ $post['title'] }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $post['platform'] }} · {{ $post['date'] }}</div>
+                                <div
+                                    class="font-medium text-sm text-gray-900 truncate group-hover:text-primary-foreground transition-colors">
+                                    {{ $post->title }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $post->content_type_label }} ·
+                                    {{ $post->objective_label }}</div>
                             </div>
-                            <span class="badge {{ $post['status'] === 'Publicada' ? 'bg-green-100 text-green-700' : ($post['status'] === 'Agendada' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600') }}">
-                                {{ $post['status'] }}
-                            </span>
-                        </div>
+                            @if ($post->campaign)
+                                <span
+                                    class="badge bg-primary/20 text-primary-foreground">{{ Str::limit($post->campaign, 20) }}</span>
+                            @else
+                                <span class="badge bg-gray-100 text-gray-500">Sem campanha</span>
+                            @endif
+                        </a>
                     @empty
                         <div class="px-6 py-10 text-center text-sm text-gray-400">
-                            Nenhuma postagem em andamento.
+                            Nenhuma postagem criada.
+                            <a href="{{ route('posts.create', $client) }}"
+                                class="text-primary-foreground font-semibold hover:underline ml-1">Criar postagem</a>
                         </div>
                     @endforelse
                 </div>
             </div>
         </div>
 
-        {{-- Sidebar: Visitas e Canais --}}
+        {{-- Sidebar --}}
         <div class="space-y-6">
-            {{-- Gráfico placeholder de visitas --}}
+            {{-- Engajamento últimos 7 dias --}}
             <div class="card p-6">
-                <h2 class="font-semibold text-gray-900 mb-4">Visitas — últimos 7 dias</h2>
+                <h2 class="font-semibold text-gray-900 mb-4">Engajamento — últimos 7 dias</h2>
                 <div class="flex items-end gap-1.5 h-32">
                     @foreach ([65, 40, 78, 52, 90, 85, 72] as $i => $val)
                         <div class="flex-1 flex flex-col items-center gap-1">
                             <div class="w-full rounded-none bg-primary/{{ $val > 70 ? '60' : '30' }} transition-all hover:bg-primary"
-                                 style="height: {{ $val }}%"></div>
-                            <span class="text-[10px] text-gray-400">{{ ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'][$i] }}</span>
+                                style="height: {{ $val }}%"></div>
+                            <span
+                                class="text-[10px] text-gray-400">{{ ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][$i] }}</span>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            {{-- Canais ativos --}}
+            {{-- Redes sociais ativas --}}
             <div class="card p-6">
-                <h2 class="font-semibold text-gray-900 mb-4">Canais ativos</h2>
+                <h2 class="font-semibold text-gray-900 mb-4">Redes sociais</h2>
                 @if (!empty($client->channels))
                     <div class="space-y-2">
                         @foreach ($client->channels as $channel)
@@ -136,7 +127,7 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-gray-400">Nenhum canal configurado.</p>
+                    <p class="text-sm text-gray-400">Nenhuma rede social configurada.</p>
                 @endif
             </div>
         </div>

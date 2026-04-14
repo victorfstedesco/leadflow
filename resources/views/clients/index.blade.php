@@ -2,8 +2,8 @@
     <x-slot name="title">Clientes</x-slot>
 
     <div class="mb-10 text-center sm:text-left">
-        <h1 class="section-title">Gerenciador de Clientes</h1>
-        <p class="text-gray-500 mt-2 text-sm sm:text-base">Métricas, postagens e funil unificados para suas operações de marketing.</p>
+        <h1 class="section-title">Clientes</h1>
+        <p class="text-gray-500 mt-2 text-sm sm:text-base">Gerencie os clientes da sua agência e acesse seus ambientes.</p>
     </div>
 
     @if ($clients->isEmpty())
@@ -23,7 +23,7 @@
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary-foreground">add</span>
                 </div>
                 <h3 class="font-bold text-gray-700 group-hover:text-primary-foreground">Adicionar Cliente</h3>
-                <p class="text-xs text-gray-400 mt-2 text-center">Configure um novo funil e ambiente</p>
+                <p class="text-xs text-gray-400 mt-2 text-center">Configure um novo ambiente de social media</p>
             </a>
 
             @foreach ($clients as $client)
@@ -32,48 +32,30 @@
                         <div class="inline-flex h-12 w-12 items-center justify-center rounded-none bg-primary/20 text-primary-foreground font-bold text-lg">
                             {{ strtoupper(substr($client->name, 0, 2)) }}
                         </div>
-                        <span class="badge bg-gray-100 text-gray-700">{{ $client->leads_count }} leads</span>
+                        @if ($client->niche)
+                            <span class="badge bg-primary/20 text-primary-foreground">{{ $client->niche }}</span>
+                        @endif
                     </div>
                     <h2 class="font-semibold text-lg text-gray-900 group-hover:text-primary-foreground transition-colors">{{ $client->name }}</h2>
+
                     @if (!empty($client->channels))
                         <div class="flex flex-wrap gap-1.5 mt-3">
-                            @foreach ($client->channels as $channel)
-                                <span class="badge bg-primary/20 text-primary-foreground">{{ $channel }}</span>
+                            @foreach (array_slice($client->channels, 0, 3) as $channel)
+                                <span class="badge bg-gray-100 text-gray-600">{{ $channel }}</span>
                             @endforeach
-                        </div>
-                    @endif
-                    <div class="mt-auto pt-5 border-t border-gray-100">
-                        <div class="flex items-center justify-between text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                            <span>Pipeline Preview</span>
-                        </div>
-                        
-                        @php
-                            $total = max($client->leads_count, 1);
-                            $colors = ['bg-gray-200', 'bg-gray-300', 'bg-gray-400', 'bg-gray-800'];
-                        @endphp
-                        
-                        {{-- Barra de Progresso Segmentada --}}
-                        <div class="flex h-1.5 w-full bg-gray-50 mb-3 overflow-hidden rounded-none">
-                            @foreach ($client->stages->take(4) as $index => $stage)
-                                @php $width = ($stage->leads_count / $total) * 100; @endphp
-                                @if($width > 0)
-                                    <div class="{{ $colors[$index % 4] }} h-full border-r border-white last:border-0 transition-opacity hover:opacity-70" style="width: {{ $width }}%" title="{{ $stage->name }}: {{ $stage->leads_count }}"></div>
-                                @endif
-                            @endforeach
-                            @if($client->leads_count == 0)
-                                <div class="w-full bg-gray-100 h-full"></div>
+                            @if (count($client->channels) > 3)
+                                <span class="badge bg-gray-100 text-gray-600">+{{ count($client->channels) - 3 }}</span>
                             @endif
                         </div>
-                        
-                        {{-- Legenda Minimalista --}}
-                        <div class="flex flex-wrap justify-between gap-y-1 gap-x-2">
-                            @foreach ($client->stages->take(4) as $index => $stage)
-                               <div class="flex items-center gap-1.5 min-w-0" title="{{ $stage->name }}: {{ $stage->leads_count }} leads">
-                                  <div class="w-1.5 h-1.5 rounded-none {{ $colors[$index % 4] }} flex-shrink-0"></div>
-                                  <span class="text-[10px] text-gray-500 truncate">{{ $stage->name }}</span>
-                                  <span class="text-[10px] font-semibold text-gray-900">{{ $stage->leads_count }}</span>
-                               </div>
-                            @endforeach
+                    @endif
+
+                    <div class="mt-auto pt-5 border-t border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-gray-400">edit_note</span>
+                                <span class="text-sm text-gray-500">{{ $client->posts_count }} postagens</span>
+                            </div>
+                            <span class="material-symbols-outlined text-[18px] text-gray-300 group-hover:text-primary-foreground transition-colors">arrow_forward</span>
                         </div>
                     </div>
                 </a>

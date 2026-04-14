@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
-    protected $fillable = ['user_id', 'name', 'channels', 'notes'];
+    protected $fillable = ['user_id', 'name', 'niche', 'channels', 'notes'];
 
     protected $casts = [
         'channels' => 'array',
@@ -19,13 +19,8 @@ class Client extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function stages(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(FunnelStage::class)->orderBy('position');
-    }
-
-    public function leads(): HasMany
-    {
-        return $this->hasMany(Lead::class);
+        return $this->hasMany(Post::class);
     }
 }

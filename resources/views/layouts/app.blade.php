@@ -14,6 +14,10 @@
     <body class="font-sans antialiased min-h-screen bg-surface">
         @include('layouts.navigation')
 
+        @isset($clientBar)
+            {{ $clientBar }}
+        @endisset
+
         @isset($header)
             <header class="max-w-6xl mx-auto px-6 pt-10">
                 {{ $header }}
@@ -21,12 +25,9 @@
         @endisset
 
         <main class="max-w-6xl mx-auto px-6 py-10">
-            @if (session('status'))
-                <div class="mb-6 rounded-xl bg-primary/20 border border-primary/40 px-4 py-3 text-sm font-medium text-primary-foreground">
-                    {{ session('status') }}
-                </div>
-            @endif
             {{ $slot }}
         </main>
+
+        <x-toast-notification />
     </body>
 </html>

@@ -13,7 +13,10 @@
       "Bash(curl -s -o /dev/null -w \"login: %{http_code}\\\\n\" http://127.0.0.1:8000/login)",
       "Bash(curl -s -o /dev/null -w \"clients: %{http_code}\\\\n\" http://127.0.0.1:8000/clientes)",
       "Bash(rm -f /tmp/cookies.txt)",
-      "Bash(curl -s -c /tmp/cookies.txt http://127.0.0.1:8000/login)"
+      "Bash(curl -s -c /tmp/cookies.txt http://127.0.0.1:8000/login)",
+      "Bash(node -e \"console.log\\('tailwindcss:', require\\('tailwindcss/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\('@tailwindcss/vite:', require\\('@tailwindcss/vite/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\('@tailwindcss/forms:', require\\('@tailwindcss/forms/package.json'\\).version\\)\")"
     ]
   }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\FunnelStage;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -11,8 +10,7 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Client::where('user_id', auth()->id())
-            ->withCount('leads')
-            ->with(['stages' => fn ($q) => $q->withCount('leads')])
+            ->withCount('posts')
             ->latest()
             ->get();
 
@@ -28,54 +26,105 @@ class ClientController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:120',
+            'niche' => 'nullable|string|max:60',
             'channels' => 'nullable|array',
             'notes' => 'nullable|string',
         ]);
 
-        $client = Client::create([
+        Client::create([
             'user_id' => auth()->id(),
             'name' => $data['name'],
+            'niche' => $data['niche'] ?? null,
             'channels' => $data['channels'] ?? [],
             'notes' => $data['notes'] ?? null,
         ]);
 
-        $defaultStages = ['Novo', 'Contatado', 'Qualificado', 'Proposta', 'Fechado'];
-        foreach ($defaultStages as $i => $stageName) {
-            FunnelStage::create([
-                'client_id' => $client->id,
-                'name' => $stageName,
-                'position' => $i,
-            ]);
-        }
-
-        return redirect()->route('clients.show', $client)->with('status', 'Cliente criado com sucesso.');
+        return redirect()->route('clients.index')->with('status', 'Cliente criado com sucesso.');
     }
 
     public function show(Client $client)
     {
         abort_unless($client->user_id === auth()->id(), 403);
 
-        $client->load(['stages.leads', 'leads']);
+        $client->load('posts');
 
-        // Calculate metrics
-        $totalLeads = $client->leads->count();
-        $lastStage = $client->stages->last();
-        $converted = $lastStage ? $lastStage->leads->count() : 0;
-        $conversionRate = $totalLeads > 0 ? round(($converted / $totalLeads) * 100, 1) : 0;
+        $totalPosts = $client->posts->count();
+        $linkedPosts = $client->posts->whereNotNull('campaign')->count();
+        $recentPosts = $client->posts->sortByDesc('created_at')->take(5)->values();
 
-        // Static posts for now (in the future this will come from a Post model)
-        $activePosts = $this->getStaticPosts($client);
+        // Métricas mockadas de social media
+        $metrics = [
+            'reach' => '24.8K',
+            'reach_change' => '+12%',
+            'engagement' => '4.3%',
+            'engagement_change' => '+0.8%',
+            'posts_count' => $totalPosts,
+            'campaigns_active' => 3,
+        ];
 
-        return view('clients.show', compact('client', 'totalLeads', 'conversionRate', 'activePosts'));
+        return view('clients.show', compact('client', 'totalPosts', 'linkedPosts', 'recentPosts', 'metrics'));
     }
 
     public function posts(Client $client)
     {
         abort_unless($client->user_id === auth()->id(), 403);
 
-        $posts = $this->getStaticPosts($client, true);
+        $posts = $client->posts()->latest()->get();
+        $suggestions = $this->getPostSuggestions($client->niche);
 
-        return view('clients.posts', compact('client', 'posts'));
+        return view('clients.posts', compact('client', 'posts', 'suggestions'));
+    }
+
+    public function campaigns(Client $client)
+    {
+        abort_unless($client->user_id === auth()->id(), 403);
+
+        // Campanhas estáticas com métricas mockadas
+        $campaigns = $this->getMockCampaigns($client);
+
+        // Para cada campanha, buscar posts REAIS do banco de dados vinculados
+        foreach ($campaigns as &$campaign) {
+            $campaign['linked_posts'] = $client->posts()
+                ->where('campaign', $campaign['name'])
+                ->get();
+        }
+
+        // Posts ainda não vinculados a nenhuma campanha
+        $unlinkedPosts = $client->posts()
+            ->whereNull('campaign')
+            ->orWhere('campaign', '')
+            ->where('client_id', $client->id)
+            ->get();
+
+        return view('clients.campaigns', compact('client', 'campaigns', 'unlinkedPosts'));
+    }
+
+    public function insights(Client $client)
+    {
+        abort_unless($client->user_id === auth()->id(), 403);
+
+        $client->load('posts');
+
+        // KPIs mockados
+        $kpis = [
+            'best_content' => 'Carrossel',
+            'best_time' => '18h–20h',
+            'avg_engagement' => '4.7%',
+            'follower_growth' => '+320',
+        ];
+
+        // Performance por tipo de conteúdo (mockado)
+        $contentPerformance = [
+            ['type' => 'Carrossel', 'engagement' => 6.2, 'reach' => 8400],
+            ['type' => 'Reels', 'engagement' => 5.8, 'reach' => 12300],
+            ['type' => 'Imagem', 'engagement' => 3.1, 'reach' => 4200],
+            ['type' => 'Story', 'engagement' => 2.4, 'reach' => 3100],
+        ];
+
+        // Insights contextuais baseados no nicho
+        $contextualInsights = $this->getNicheInsights($client->niche);
+
+        return view('clients.insights', compact('client', 'kpis', 'contentPerformance', 'contextualInsights'));
     }
 
     public function settings(Client $client)
@@ -91,12 +140,14 @@ class ClientController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|max:120',
+            'niche' => 'nullable|string|max:60',
             'channels' => 'nullable|array',
             'notes' => 'nullable|string',
         ]);
 
         $client->update([
             'name' => $data['name'],
+            'niche' => $data['niche'] ?? null,
             'channels' => $data['channels'] ?? [],
             'notes' => $data['notes'] ?? null,
         ]);
@@ -113,92 +164,176 @@ class ClientController extends Controller
         return redirect()->route('clients.index')->with('status', 'Cliente removido.');
     }
 
-    /**
-     * Returns static placeholder posts for demonstration.
-     * In the future, replace this with a Post model query.
-     */
-    private function getStaticPosts(Client $client, bool $includeAll = false): array
+    private function getMockCampaigns(Client $client): array
     {
-        $allPosts = [
-            [
-                'title' => 'Carousel: 5 dicas para aumentar vendas',
-                'description' => 'Conteúdo educativo em formato carousel com dicas práticas de vendas para o público-alvo.',
-                'platform' => 'Instagram',
-                'platform_icon' => 'photo_camera',
-                'platform_bg' => 'bg-gradient-to-br from-pink-50 to-purple-50 border border-purple-100',
-                'gradient' => 'from-pink-50 to-purple-100',
-                'status' => 'Publicada',
-                'date' => '12 Abr 2026',
-                'likes' => 284,
-                'comments' => 43,
+        $niche = $client->niche ?? 'Geral';
+
+        $campaignsByNiche = [
+            'Saúde' => [
+                [
+                    'name' => 'Campanha Prevenção — Outubro',
+                    'period' => '01/10 – 31/10',
+                    'budget' => 'R$ 2.500',
+                    'status' => 'Ativa',
+                    'reach' => '18.4K',
+                    'impressions' => '42.1K',
+                    'clicks' => '1.230',
+                    'ctr' => '2.92%',
+                    'cpc' => 'R$ 2,03',
+                    'posts' => ['Carrossel: Dicas de prevenção', 'Vídeo: Depoimento paciente'],
+                ],
+                [
+                    'name' => 'Lançamento Teleconsulta',
+                    'period' => '15/09 – 15/10',
+                    'budget' => 'R$ 1.800',
+                    'status' => 'Finalizada',
+                    'reach' => '12.1K',
+                    'impressions' => '28.5K',
+                    'clicks' => '890',
+                    'ctr' => '3.12%',
+                    'cpc' => 'R$ 2,02',
+                    'posts' => ['Post: Teleconsulta disponível', 'Story: Passo a passo'],
+                ],
             ],
-            [
-                'title' => 'Vídeo: Depoimento de cliente satisfeito',
-                'description' => 'Vídeo curto com depoimento real de cliente, focado em prova social e credibilidade.',
-                'platform' => 'Instagram',
-                'platform_icon' => 'photo_camera',
-                'platform_bg' => 'bg-gradient-to-br from-pink-50 to-purple-50 border border-purple-100',
-                'gradient' => 'from-orange-50 to-pink-100',
-                'status' => 'Agendada',
-                'date' => '15 Abr 2026',
-                'likes' => 0,
-                'comments' => 0,
+            'Gastronomia' => [
+                [
+                    'name' => 'Festival de Inverno',
+                    'period' => '01/06 – 30/06',
+                    'budget' => 'R$ 3.000',
+                    'status' => 'Ativa',
+                    'reach' => '32.7K',
+                    'impressions' => '68.3K',
+                    'clicks' => '2.450',
+                    'ctr' => '3.59%',
+                    'cpc' => 'R$ 1,22',
+                    'posts' => ['Reels: Bastidores da cozinha', 'Carrossel: Novo cardápio'],
+                ],
+                [
+                    'name' => 'Delivery Launch',
+                    'period' => '10/05 – 10/06',
+                    'budget' => 'R$ 2.200',
+                    'status' => 'Pausada',
+                    'reach' => '15.3K',
+                    'impressions' => '34.0K',
+                    'clicks' => '1.120',
+                    'ctr' => '3.29%',
+                    'cpc' => 'R$ 1,96',
+                    'posts' => ['Post: Peça pelo app', 'Vídeo: Unboxing delivery'],
+                ],
             ],
-            [
-                'title' => 'Post: Promoção de lançamento',
-                'description' => 'Anúncio de promoção especial com CTA direto para WhatsApp comercial.',
-                'platform' => 'Facebook',
-                'platform_icon' => 'thumb_up',
-                'platform_bg' => 'bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100',
-                'gradient' => 'from-blue-50 to-indigo-100',
-                'status' => 'Em produção',
-                'date' => '16 Abr 2026',
-                'likes' => 0,
-                'comments' => 0,
-            ],
-            [
-                'title' => 'Story: Bastidores do atendimento',
-                'description' => 'Conteúdo de bastidores mostrando o dia a dia, humanizando a marca.',
-                'platform' => 'Instagram',
-                'platform_icon' => 'photo_camera',
-                'platform_bg' => 'bg-gradient-to-br from-pink-50 to-purple-50 border border-purple-100',
-                'gradient' => 'from-green-50 to-emerald-100',
-                'status' => 'Rascunho',
-                'date' => '17 Abr 2026',
-                'likes' => 0,
-                'comments' => 0,
-            ],
-            [
-                'title' => 'Campanha: Black Friday antecipada',
-                'description' => 'Série de anúncios para Meta Ads com foco em conversão direta.',
-                'platform' => 'Meta Ads',
-                'platform_icon' => 'campaign',
-                'platform_bg' => 'bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-100',
-                'gradient' => 'from-sky-50 to-blue-100',
-                'status' => 'Em produção',
-                'date' => '18 Abr 2026',
-                'likes' => 0,
-                'comments' => 0,
-            ],
-            [
-                'title' => 'Vídeo: Tutorial do produto',
-                'description' => 'Vídeo demonstrativo mostrando funcionalidades do produto para TikTok.',
-                'platform' => 'TikTok',
-                'platform_icon' => 'smart_display',
-                'platform_bg' => 'bg-gray-50 border border-gray-200',
-                'gradient' => 'from-gray-50 to-gray-200',
-                'status' => 'Publicada',
-                'date' => '10 Abr 2026',
-                'likes' => 1520,
-                'comments' => 87,
+            'Moda' => [
+                [
+                    'name' => 'Coleção Verão 2026',
+                    'period' => '01/09 – 30/09',
+                    'budget' => 'R$ 5.000',
+                    'status' => 'Ativa',
+                    'reach' => '45.2K',
+                    'impressions' => '98.7K',
+                    'clicks' => '3.800',
+                    'ctr' => '3.85%',
+                    'cpc' => 'R$ 1,32',
+                    'posts' => ['Carrossel: Looks do dia', 'Reels: Try-on haul'],
+                ],
+                [
+                    'name' => 'Black Friday Antecipada',
+                    'period' => '10/11 – 30/11',
+                    'budget' => 'R$ 4.500',
+                    'status' => 'Finalizada',
+                    'reach' => '52.0K',
+                    'impressions' => '110.2K',
+                    'clicks' => '5.200',
+                    'ctr' => '4.72%',
+                    'cpc' => 'R$ 0,87',
+                    'posts' => ['Post: Contagem regressiva', 'Vídeo: Ofertas exclusivas'],
+                ],
             ],
         ];
 
-        if ($includeAll) {
-            return $allPosts;
-        }
+        return $campaignsByNiche[$niche] ?? [
+            [
+                'name' => 'Campanha de Lançamento',
+                'period' => '01/04 – 30/04',
+                'budget' => 'R$ 2.000',
+                'status' => 'Ativa',
+                'reach' => '10.5K',
+                'impressions' => '22.3K',
+                'clicks' => '780',
+                'ctr' => '3.50%',
+                'cpc' => 'R$ 2,56',
+                'posts' => ['Post: Lançamento oficial', 'Story: Bastidores'],
+            ],
+        ];
+    }
 
-        // For dashboard, return only active (non-published) posts
-        return array_values(array_filter($allPosts, fn ($p) => $p['status'] !== 'Publicada'));
+    private function getNicheInsights(?string $niche): array
+    {
+        $insights = [
+            'Saúde' => [
+                ['icon' => 'local_hospital', 'title' => 'Conteúdo educativo performa melhor', 'text' => 'Posts educativos sobre prevenção e cuidados têm 3x mais engajamento que posts promocionais. Invista em carrosséis com dicas de saúde.'],
+                ['icon' => 'schedule', 'title' => 'Melhor horário: 7h–9h', 'text' => 'O público de saúde engaja mais no início da manhã. Agende posts informativos para esse período.'],
+                ['icon' => 'videocam', 'title' => 'Depoimentos em vídeo convertem', 'text' => 'Vídeos de depoimentos de pacientes têm taxa de conversão 45% maior para agendamento de consultas.'],
+            ],
+            'Gastronomia' => [
+                ['icon' => 'restaurant', 'title' => 'Bastidores da cozinha engajam', 'text' => 'Reels mostrando o preparo dos pratos performam 45% melhor que fotos estáticas do menu. Aposte em conteúdo autêntico.'],
+                ['icon' => 'schedule', 'title' => 'Poste entre 11h–13h', 'text' => 'Conteúdos publicados no horário de almoço geram 2x mais interações e salvamentos.'],
+                ['icon' => 'trending_up', 'title' => 'Promoções temáticas funcionam', 'text' => 'Campanhas vinculadas a datas comemorativas (Dia dos Namorados, inverno) tiveram ROI 60% superior.'],
+            ],
+            'Moda' => [
+                ['icon' => 'checkroom', 'title' => 'Carrosséis de looks geram saves', 'text' => 'Carrosséis com montagem de looks geram 2.5x mais salvamentos que fotos de produto isoladas.'],
+                ['icon' => 'schedule', 'title' => 'Melhor horário: 18h–20h', 'text' => 'O público de moda engaja mais no fim do dia. Priorize Reels e carrosséis nesse horário.'],
+                ['icon' => 'smart_display', 'title' => 'Try-on hauls no Reels', 'text' => 'Vídeos de "try-on" têm taxa de compartilhamento 3x maior e impulsionam tráfego para o e-commerce.'],
+            ],
+        ];
+
+        return $insights[$niche] ?? [
+            ['icon' => 'lightbulb', 'title' => 'Diversifique os formatos', 'text' => 'Alternar entre carrosséis, reels e stories mantém o algoritmo ativo e aumenta o alcance orgânico em até 35%.'],
+            ['icon' => 'schedule', 'title' => 'Consistência é chave', 'text' => 'Contas que postam ao menos 4x por semana têm crescimento de seguidores 2x mais rápido.'],
+            ['icon' => 'analytics', 'title' => 'Analise e adapte', 'text' => 'Revise as métricas semanalmente e ajuste a estratégia de conteúdo com base nos tipos que mais performam.'],
+        ];
+    }
+
+    private function getPostSuggestions(?string $niche): array
+    {
+        $suggestions = [
+            'Saúde' => [
+                ['type' => 'carrossel', 'title' => '7 sinais de que você precisa ir ao médico', 'reason' => 'Carrosséis educativos sobre saúde preventiva geram 3.2x mais salvamentos nesse nicho. Aposte em linguagem acessível.', 'objective' => 'Educação'],
+                ['type' => 'reels', 'title' => 'Um dia na rotina do consultório', 'reason' => 'Conteúdos de bastidores humanizam a marca e aumentam a confiança. Reels desse tipo têm 48% mais compartilhamentos.', 'objective' => 'Branding'],
+                ['type' => 'imagem', 'title' => 'Mito ou verdade: série semanal', 'reason' => 'Séries com formato fixo criam hábito no público. Posts de "mito ou verdade" geram alta taxa de comentários no nicho saúde.', 'objective' => 'Engajamento'],
+                ['type' => 'video', 'title' => 'Depoimento de paciente satisfeito', 'reason' => 'Prova social em vídeo converte 45% mais agendamentos. Use legendas — 85% dos vídeos são assistidos sem som.', 'objective' => 'Conversão'],
+            ],
+            'Gastronomia' => [
+                ['type' => 'reels', 'title' => 'Receita do prato mais pedido em 60s', 'reason' => 'Reels de receitas rápidas são o formato nº1 em gastronomia. Vídeos de até 60s têm 2x mais views que longos.', 'objective' => 'Engajamento'],
+                ['type' => 'carrossel', 'title' => 'Novo cardápio de inverno — pratos e histórias', 'reason' => 'Carrosséis que contam a história por trás dos pratos geram 35% mais salvamentos. Vincule a uma campanha sazonal.', 'objective' => 'Branding'],
+                ['type' => 'story', 'title' => 'Enquete: qual sabor novo você quer?', 'reason' => 'Enquetes nos stories geram interação direta e fornecem dados para o menu. Taxa de resposta média: 25%.', 'objective' => 'Engajamento'],
+                ['type' => 'video', 'title' => 'Chef prepara prato especial ao vivo', 'reason' => 'Conteúdo ao vivo ou estilo "ao vivo" transmite autenticidade. Bastidores da cozinha performam 45% melhor que fotos de menu.', 'objective' => 'Branding'],
+            ],
+            'Moda' => [
+                ['type' => 'carrossel', 'title' => '3 looks com uma peça só', 'reason' => 'Carrosséis de combinação de looks geram 2.5x mais salvamentos. É o formato com maior ROI para e-commerce de moda.', 'objective' => 'Conversão'],
+                ['type' => 'reels', 'title' => 'Try-on haul: novidades da semana', 'reason' => 'Try-on hauls têm taxa de compartilhamento 3x maior e geram tráfego direto para o e-commerce.', 'objective' => 'Conversão'],
+                ['type' => 'story', 'title' => 'Votação: look A ou look B?', 'reason' => 'Stories com votação geram engajamento imediato e dados sobre preferências do público.', 'objective' => 'Engajamento'],
+                ['type' => 'imagem', 'title' => 'Tendências da estação com peças da loja', 'reason' => 'Associar tendências globais a peças da loja posiciona a marca como referência. Posts assim têm 40% mais alcance.', 'objective' => 'Branding'],
+            ],
+            'Tecnologia' => [
+                ['type' => 'carrossel', 'title' => '5 ferramentas que todo profissional precisa', 'reason' => 'Listas de ferramentas são altamente salvas e compartilhadas no nicho tech. Ideal para posicionamento de autoridade.', 'objective' => 'Educação'],
+                ['type' => 'reels', 'title' => 'Antes x Depois: automação na prática', 'reason' => 'Demonstrações visuais de impacto geram curiosidade e conversão. Reels comparativos performam 55% acima da média.', 'objective' => 'Conversão'],
+                ['type' => 'video', 'title' => 'Tutorial rápido: funcionalidade mais pedida', 'reason' => 'Tutoriais curtos reduzem churn e posicionam a marca como autoridade. Ideal para retenção.', 'objective' => 'Educação'],
+            ],
+            'Fitness' => [
+                ['type' => 'reels', 'title' => 'Treino de 15 min sem equipamento', 'reason' => 'Treinos rápidos e acessíveis são o conteúdo mais salvo no nicho fitness. Reels desse tipo viralizam organicamente.', 'objective' => 'Engajamento'],
+                ['type' => 'carrossel', 'title' => 'O que comer antes e depois do treino', 'reason' => 'Nutrição + treino é a combinação com maior taxa de compartilhamento. Carrosséis educativos funcionam muito bem.', 'objective' => 'Educação'],
+                ['type' => 'video', 'title' => 'Transformação: 30 dias de desafio', 'reason' => 'Conteúdo de transformação gera prova social poderosa. Use com depoimento real para máximo impacto.', 'objective' => 'Conversão'],
+            ],
+            'Beleza' => [
+                ['type' => 'reels', 'title' => 'Get ready with me: rotina matinal', 'reason' => 'GRWM é o formato nº1 em beleza no Instagram e TikTok. Alta taxa de retenção e compartilhamento.', 'objective' => 'Engajamento'],
+                ['type' => 'carrossel', 'title' => 'Skincare: 5 erros que você não sabia', 'reason' => 'Conteúdo educativo em formato "erros comuns" gera curiosidade e alta taxa de salvamento.', 'objective' => 'Educação'],
+                ['type' => 'story', 'title' => 'Antes e depois: tratamento do mês', 'reason' => 'Antes/depois é prova social direta. Nos stories, gera interação imediata e pedidos de agendamento.', 'objective' => 'Conversão'],
+            ],
+        ];
+
+        return $suggestions[$niche] ?? [
+            ['type' => 'carrossel', 'title' => 'Lista: 5 dicas para seu público', 'reason' => 'Listas em carrossel são o formato com maior taxa de salvamento em qualquer nicho. Adapte para o seu público.', 'objective' => 'Educação'],
+            ['type' => 'reels', 'title' => 'Bastidores: como funciona por dentro', 'reason' => 'Conteúdo de bastidores humaniza a marca e gera conexão emocional. Reels curtos (15-30s) performam melhor.', 'objective' => 'Branding'],
+            ['type' => 'video', 'title' => 'Depoimento de cliente satisfeito', 'reason' => 'Prova social em vídeo é o conteúdo com maior taxa de conversão. Use legendas para acessibilidade.', 'objective' => 'Conversão'],
+        ];
     }
 }
