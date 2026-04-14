@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System - AbacatePay Extraído</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Fustat', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#9EEA6C', // (158, 234, 108)
+                            light: '#4ADE80',   // from 404 page variables
+                            dark: '#166534',    // from 404 page variables
+                            foreground: '#0A1B39' // extracted from Try It buttons
+                        },
+                        background: {
+                            light: '#EFF1E7',   // bg-[#eff1e7] body class
+                            dark: '#0C0E0D',    // 12 14 13
+                            white: '#FFFFFF',
+                        },
+                        gray: {
+                            50: '#F7FAF6',
+                            100: '#F2F5F1',
+                            200: '#E3E5E1',
+                            300: '#D2D5D1',
+                            400: '#A3A5A1',
+                            500: '#747773',
+                            600: '#545753',
+                            700: '#434541',
+                            800: '#2A2C28',
+                            900: '#1B1D1A',
+                            950: '#0F110D',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Fustat', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light text-gray-900 antialiased min-h-screen selection:bg-primary selection:text-primary-foreground">
+
+    <div class="max-w-6xl mx-auto px-6 py-12">
+        <header class="mb-16 border-b border-gray-200 pb-8 flex justify-between items-end">
+            <div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-800 mb-4">Design System Extraído</span>
+                <h1 class="text-4xl font-bold tracking-tight text-gray-950 mb-2">AbacatePay UI</h1>
+                <p class="text-lg text-gray-600">Baseado nos arquivos e templates de documentação extraídos de <code class="bg-gray-200 px-1 rounded text-sm">@[referencias-visuais]</code>.</p>
+            </div>
+            <button onclick="document.documentElement.classList.toggle('dark')" class="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-primary transition-colors text-sm font-medium">Toggle Dark Mode</button>
+        </header>
+
+        <!-- Colors -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">Cores</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- Primary Base -->
+                <div class="space-y-3">
+                    <div class="h-24 rounded-2xl bg-primary shadow-sm border border-gray-950/5 flex items-end p-4">
+                        <span class="text-primary-foreground font-semibold text-sm">Primary</span>
+                    </div>
+                    <div class="text-sm font-medium">#9EEA6C / rgb(158, 234, 108)</div>
+                    <div class="text-xs text-gray-500">Cor de destaque principal, CTAs, links ativos.</div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="h-24 rounded-2xl bg-primary-foreground shadow-sm border border-gray-950/5 flex items-end p-4">
+                        <span class="text-white font-semibold text-sm">Primary Foreground</span>
+                    </div>
+                    <div class="text-sm font-medium">#0A1B39 / rgb(10, 27, 57)</div>
+                    <div class="text-xs text-gray-500">Contraste sobre botões primários.</div>
+                </div>
+
+                <!-- Backgound Light -->
+                <div class="space-y-3">
+                    <div class="h-24 rounded-2xl bg-background-light shadow-inner border border-gray-200 flex items-end p-4">
+                        <span class="text-gray-900 font-semibold text-sm">Background Light</span>
+                    </div>
+                    <div class="text-sm font-medium">#EFF1E7</div>
+                    <div class="text-xs text-gray-500">Cor de fundo do app (Light Gray-Green).</div>
+                </div>
+
+                <!-- Background Dark -->
+                <div class="space-y-3">
+                    <div class="h-24 rounded-2xl bg-background-dark shadow-sm flex items-end p-4">
+                        <span class="text-white font-semibold text-sm">Background Dark</span>
+                    </div>
+                    <div class="text-sm font-medium">#0C0E0D / rgb(12, 14, 13)</div>
+                    <div class="text-xs text-gray-500">Cor de fundo (Dark mode).</div>
+                </div>
+            </div>
+
+            <!-- Grayscale -->
+            <div class="mb-4 text-sm font-semibold">Tons de Escala de Cinza (Gray Scale)</div>
+            <div class="flex h-16 rounded-2xl overflow-hidden border border-gray-950/5 shadow-sm">
+                <div class="flex-1 bg-gray-50" title="50"></div>
+                <div class="flex-1 bg-gray-100" title="100"></div>
+                <div class="flex-1 bg-gray-200" title="200"></div>
+                <div class="flex-1 bg-gray-300" title="300"></div>
+                <div class="flex-1 bg-gray-400" title="400"></div>
+                <div class="flex-1 bg-gray-500" title="500"></div>
+                <div class="flex-1 bg-gray-600" title="600"></div>
+                <div class="flex-1 bg-gray-700" title="700"></div>
+                <div class="flex-1 bg-gray-800" title="800"></div>
+                <div class="flex-1 bg-gray-900" title="900"></div>
+                <div class="flex-1 bg-gray-950" title="950"></div>
+            </div>
+            <div class="flex mt-2 text-xs text-gray-500 justify-between">
+                <span>50</span>
+                <span>500</span>
+                <span>950</span>
+            </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">Tipografia</h2>
+            <div class="bg-white rounded-3xl p-8 border border-gray-950/5 shadow-sm">
+                <p class="text-sm font-medium text-gray-500 mb-8">Fonte: Fustat</p>
+                
+                <div class="space-y-8">
+                    <div class="flex items-baseline gap-6 border-b border-gray-100 pb-4">
+                        <span class="text-sm font-medium text-gray-400 w-16">H1</span>
+                        <h1 class="text-4xl font-bold tracking-tight text-gray-950">The quick brown fox jumps</h1>
+                    </div>
+                    <div class="flex items-baseline gap-6 border-b border-gray-100 pb-4">
+                        <span class="text-sm font-medium text-gray-400 w-16">H2</span>
+                        <h2 class="text-3xl font-semibold text-gray-950">The quick brown fox jumps</h2>
+                    </div>
+                    <div class="flex items-baseline gap-6 border-b border-gray-100 pb-4">
+                        <span class="text-sm font-medium text-gray-400 w-16">H3</span>
+                        <h3 class="text-2xl font-semibold text-gray-900">The quick brown fox jumps</h3>
+                    </div>
+                    <div class="flex items-baseline gap-6 border-b border-gray-100 pb-4">
+                        <span class="text-sm font-medium text-gray-400 w-16">Label</span>
+                        <span class="text-sm font-semibold tracking-wide uppercase text-gray-500">The quick brown fox</span>
+                    </div>
+                    <div class="flex items-baseline gap-6">
+                        <span class="text-sm font-medium text-gray-400 w-16">Body</span>
+                        <p class="text-base text-gray-600 font-normal leading-relaxed max-w-2xl">
+                            The quick brown fox jumps over the lazy dog. A interface de usuário usa fontes com contraste suavizado e leading (altura de linha) relaxada, que é típica de documentação (como Mintlify/AbacatePay).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Botões -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">Botões & Badges</h2>
+            <div class="flex flex-wrap gap-6 items-center bg-white p-8 rounded-3xl border border-gray-950/5 shadow-sm">
+                <!-- Botão Primário -->
+                <button class="px-5 py-2.5 bg-primary hover:bg-[#8dd95b] text-primary-foreground font-semibold rounded-xl transition-all shadow-sm">
+                    Botão Primário
+                </button>
+                
+                <!-- Botão Docs (Outline/Ghost) -->
+                <button class="px-5 py-2.5 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 font-medium rounded-xl transition-all shadow-sm">
+                    Botão Secundário
+                </button>
+
+                <!-- Ícone Botão (Search) -->
+                <button class="group flex items-center justify-between w-64 px-3.5 py-2 text-sm text-gray-500 bg-background-white border border-gray-200 rounded-xl hover:border-gray-300 shadow-sm transition-colors">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Search...</span>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 border border-gray-200/60">Ctrl K</span>
+                </button>
+
+                <!-- Bagdes -->
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/20 text-primary-dark">
+                    Badge de Sucesso
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                    Badge Neutro
+                </span>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">Cards & Container</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Card de Documentação Extráído -->
+                <a href="#" class="group relative block p-6 bg-white rounded-2xl border border-gray-950/10 shadow-sm hover:border-primary transition-colors cursor-pointer">
+                    <div class="absolute top-5 right-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity group-hover:text-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-primary-dark transition-colors">Cobrar com Checkout</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">
+                        Use nosso checkout para receber com Pix e Cartão de Crédito de maneira simples e eficiente.
+                    </p>
+                </a>
+
+                <!-- Card Interativo / Vidro -->
+                <div class="relative block p-6 bg-white/70 backdrop-blur-xl rounded-2xl border border-gray-200 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Card estilo Glassmorphism</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Muito usado nas áreas de navegação e barras de pesquisa no site da AbacatePay. O contraste entre os elementos cinza e o highlight verde limão.
+                    </p>
+                    <input type="text" placeholder="Exemplo de input..." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm">
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
