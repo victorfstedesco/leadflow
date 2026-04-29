@@ -16,7 +16,9 @@
       "Bash(curl -s -c /tmp/cookies.txt http://127.0.0.1:8000/login)",
       "Bash(node -e \"console.log\\('tailwindcss:', require\\('tailwindcss/package.json'\\).version\\)\")",
       "Bash(node -e \"console.log\\('@tailwindcss/vite:', require\\('@tailwindcss/vite/package.json'\\).version\\)\")",
-      "Bash(node -e \"console.log\\('@tailwindcss/forms:', require\\('@tailwindcss/forms/package.json'\\).version\\)\")"
+      "Bash(node -e \"console.log\\('@tailwindcss/forms:', require\\('@tailwindcss/forms/package.json'\\).version\\)\")",
+      "Bash(php -l app/Http/Controllers/CampaignController.php app/Http/Controllers/ClientController.php app/Http/Controllers/ClientReportController.php app/Models/Campaign.php app/Models/CampaignMetric.php app/Models/PostMetric.php app/Models/ClientReport.php)",
+      "Bash(git checkout *)"
     ]
   }
 }
