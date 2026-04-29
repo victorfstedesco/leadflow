@@ -32,7 +32,8 @@
                         $tabs = [
                             ['route' => 'clients.show', 'icon' => 'grid_view', 'label' => 'Dashboard', 'match' => request()->routeIs('clients.show')],
                             ['route' => 'clients.posts', 'icon' => 'edit_note', 'label' => 'Postagens', 'match' => request()->routeIs('clients.posts') || request()->routeIs('posts.*')],
-                            ['route' => 'clients.campaigns', 'icon' => 'campaign', 'label' => 'Campanhas', 'match' => request()->routeIs('clients.campaigns')],
+                            ['route' => 'clients.campaigns', 'icon' => 'campaign', 'label' => 'Campanhas', 'match' => request()->routeIs('clients.campaigns') || request()->routeIs('campaigns.*')],
+                            ['route' => 'plannings.index', 'icon' => 'flag', 'label' => 'Planejamento', 'match' => request()->routeIs('plannings.*') || request()->routeIs('goals.*')],
                             ['route' => 'clients.insights', 'icon' => 'insights', 'label' => 'Insights', 'match' => request()->routeIs('clients.insights')],
                             ['route' => 'clients.settings', 'icon' => 'settings', 'label' => 'Configurações', 'match' => request()->routeIs('clients.settings')],
                         ];

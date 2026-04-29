@@ -81,7 +81,7 @@
                             </div>
                             @if ($post->campaign)
                                 <span
-                                    class="badge bg-primary/20 text-primary-foreground">{{ Str::limit($post->campaign, 20) }}</span>
+                                    class="badge bg-primary/20 text-primary-foreground">{{ Str::limit($post->campaign->name, 20) }}</span>
                             @else
                                 <span class="badge bg-gray-100 text-gray-500">Sem campanha</span>
                             @endif

@@ -48,13 +48,19 @@
 
             <div>
                 <label class="label">Campanha (opcional)</label>
-                <select name="campaign" class="input">
+                <select name="campaign_id" class="input">
                     <option value="">Sem campanha</option>
                     @foreach ($campaigns as $campaign)
-                        <option value="{{ $campaign }}" @selected(old('campaign', $post->campaign) === $campaign)>{{ $campaign }}</option>
+                        <option value="{{ $campaign->id }}" @selected((int) old('campaign_id', $post->campaign_id) === $campaign->id)>{{ $campaign->name }}</option>
                     @endforeach
                 </select>
-                <p class="text-xs text-gray-400 mt-1.5">Vincule esta postagem a uma campanha ativa.</p>
+                <p class="text-xs text-gray-400 mt-1.5">
+                    @if ($campaigns->isEmpty())
+                        Nenhuma campanha sincronizada. <a href="{{ route('clients.campaigns', $client) }}" class="underline">Sincronize com Meta</a> para vincular.
+                    @else
+                        Vincule esta postagem a uma campanha real do Meta.
+                    @endif
+                </p>
             </div>
 
             <div class="flex items-center justify-between pt-4 border-t border-gray-100">

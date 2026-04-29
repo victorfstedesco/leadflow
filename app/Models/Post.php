@@ -13,12 +13,17 @@ class Post extends Model
         'copy',
         'content_type',
         'objective',
-        'campaign',
+        'campaign_id',
     ];
 
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class);
     }
 
     public function getContentTypeLabelAttribute(): string

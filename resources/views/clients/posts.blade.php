@@ -63,7 +63,7 @@
                         <div class="mt-3 pt-3 border-t border-gray-100">
                             <div class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[14px] text-gray-400">campaign</span>
-                                <span class="text-xs text-gray-500 truncate">{{ $post->campaign }}</span>
+                                <span class="text-xs text-gray-500 truncate">{{ $post->campaign->name }}</span>
                             </div>
                         </div>
                     @endif
