@@ -64,11 +64,12 @@
             </div>
 
             <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <form method="POST" action="{{ route('posts.destroy', [$client, $post]) }}" onsubmit="return confirm('Tem certeza que deseja excluir esta postagem?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors">Excluir postagem</button>
-                </form>
+                <button type="button"
+                        onclick="document.getElementById('delete-post-form').submit()"
+                        class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors"
+                        onkeydown="if(event.key==='Enter') return confirm('Tem certeza?') && document.getElementById('delete-post-form').submit()">
+                    Excluir postagem
+                </button>
                 <div class="flex items-center gap-3">
                     <a href="{{ route('clients.posts', $client) }}" class="btn-secondary">Cancelar</a>
                     <button type="submit" class="btn-primary">
@@ -77,6 +78,12 @@
                     </button>
                 </div>
             </div>
+        </form>
+
+        <form id="delete-post-form" method="POST" action="{{ route('posts.destroy', [$client, $post]) }}"
+              onsubmit="return confirm('Tem certeza que deseja excluir esta postagem?')">
+            @csrf
+            @method('DELETE')
         </form>
     </div>
 </x-app-layout>
