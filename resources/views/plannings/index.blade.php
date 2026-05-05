@@ -22,7 +22,7 @@
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex-1">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-none bg-primary/10 border border-primary/20 flex items-center justify-center">
+                        <div class="w-10 h-10  bg-primary/10 border border-primary/20 flex items-center justify-center">
                             <span class="material-symbols-outlined text-primary-foreground">flag</span>
                         </div>
                         <div>

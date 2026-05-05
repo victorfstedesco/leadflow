@@ -19,7 +19,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
             <div>
                 <a href="/" class="flex flex-col items-center group">
-                    <div class="w-14 h-14 rounded-none bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/20 shadow-sm">
+                    <div class="w-14 h-14  bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/20 shadow-sm">
                         <span class="material-symbols-outlined text-[32px] text-primary-foreground group-hover:text-white transition-colors">query_stats</span>
                     </div>
                 </a>

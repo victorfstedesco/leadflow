@@ -13,8 +13,8 @@
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Novo planejamento</span>
                 <span class="text-xs text-gray-400" x-text="`Passo ${step} de 3`"></span>
             </div>
-            <div class="h-1.5 bg-gray-100 rounded-none overflow-hidden">
-                <div class="h-full bg-primary transition-all duration-300 ease-out rounded-none "
+            <div class="h-1.5 bg-gray-100  overflow-hidden">
+                <div class="h-full bg-primary transition-all duration-300 ease-out  "
                      :style="`width: ${(step / 3) * 100}%`"></div>
             </div>
             <div class="flex justify-between mt-2">
@@ -83,18 +83,18 @@
                     </div>
 
                     @if ($campaigns->isEmpty())
-                        <div class="rounded-none border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">
+                        <div class=" border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">
                             Nenhuma campanha sincronizada.
                             <a href="{{ route('clients.campaigns', $client) }}" class="text-primary-foreground font-semibold hover:underline ml-1">Sincronizar com Meta →</a>
                         </div>
                     @else
                         <div class="space-y-2 max-h-72 overflow-y-auto pr-1">
                             @foreach ($campaigns as $campaign)
-                                <label class="flex items-center gap-3 px-4 py-3 rounded-none border cursor-pointer transition-all duration-150"
+                                <label class="flex items-center gap-3 px-4 py-3  border cursor-pointer transition-all duration-150"
                                        :class="form.campaigns.includes({{ $campaign->id }})
                                            ? 'border-primary bg-primary/5'
                                            : 'border-gray-200 hover:bg-gray-50'">
-                                    <div class="w-4 h-4 rounded-none border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                                    <div class="w-4 h-4  border-2 flex items-center justify-center flex-shrink-0 transition-colors"
                                          :class="form.campaigns.includes({{ $campaign->id }}) ? 'bg-primary border-primary' : 'border-gray-300'">
                                         <svg x-show="form.campaigns.includes({{ $campaign->id }})" class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -139,9 +139,9 @@
 
                     <div class="grid grid-cols-2 gap-2">
                         @foreach (\App\Models\PlanningGoal::CATEGORIES as $key => $cat)
-                            <label class="flex items-center gap-3 px-4 py-3 rounded-none border cursor-pointer transition-all duration-150"
+                            <label class="flex items-center gap-3 px-4 py-3  border cursor-pointer transition-all duration-150"
                                    :class="hasGoal('{{ $key }}') ? 'border-primary bg-primary/5' : 'border-gray-200 hover:bg-gray-50'">
-                                <div class="w-4 h-4 rounded-none border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                                <div class="w-4 h-4  border-2 flex items-center justify-center flex-shrink-0 transition-colors"
                                      :class="hasGoal('{{ $key }}') ? 'bg-primary border-primary' : 'border-gray-300'">
                                     <svg x-show="hasGoal('{{ $key }}')" class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -161,7 +161,7 @@
 
                     {{-- Target inputs for selected goals --}}
                     <template x-for="goal in form.goals" :key="goal.category">
-                        <div class="flex items-center gap-3 px-4 py-3 rounded-none bg-primary/5 border border-primary/20">
+                        <div class="flex items-center gap-3 px-4 py-3  bg-primary/5 border border-primary/20">
                             <span class="text-sm font-semibold text-gray-900 flex-1" x-text="categoryLabel(goal.category)"></span>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-gray-500">Alvo:</span>

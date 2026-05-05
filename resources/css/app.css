@@ -8,38 +8,31 @@
     html {
         font-family: 'Fustat', sans-serif;
     }
-
     body {
-        @apply bg-surface text-gray-900 antialiased;
+        @apply bg-surface text-gray-900 antialiased selection:bg-primary/30 selection:text-primary-foreground;
     }
 }
 
 @layer components {
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-none shadow-sm font-semibold hover:bg-primary-hover transition-all duration-300;
+        @apply inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded shadow-sm font-semibold hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:translate-y-0;
     }
-
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 bg-transparent text-gray-900 border-2 border-gray-200 px-6 py-3 rounded-none font-semibold hover:border-gray-900 hover:text-gray-900 transition-all duration-300;
+        @apply inline-flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-200 px-6 py-3 rounded shadow-sm font-semibold hover:border-gray-300 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300;
     }
-
     .card {
-        @apply bg-white p-8 border border-gray-100 shadow-sm transition-all duration-300 rounded-sm;
+        @apply bg-white p-6 md:p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 rounded;
     }
-
     .input {
-        @apply w-full px-4 py-3 rounded-none border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary focus:ring-0 transition-all duration-300;
+        @apply w-full px-4 py-3 rounded border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 placeholder:text-gray-400;
     }
-
     .label {
-        @apply block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2;
+        @apply block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-2 ml-1;
     }
-
     .badge {
-        @apply inline-flex items-center rounded-none px-3 py-1 text-[11px] font-bold uppercase tracking-wider;
+        @apply inline-flex items-center rounded px-3 py-1 text-[11px] font-bold uppercase tracking-wider;
     }
-
     .section-title {
-        @apply text-4xl font-extrabold tracking-tight text-gray-900;
+        @apply text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900;
     }
 }

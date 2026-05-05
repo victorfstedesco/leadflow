@@ -12,21 +12,21 @@
         <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('E-mail') }}</label>
-            <input id="email" class="block w-full px-4 py-2.5 rounded-none border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="seu@email.com.br" />
+            <input id="email" class="block w-full px-4 py-2.5  border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="seu@email.com.br" />
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-semibold" />
         </div>
 
         <!-- Password -->
         <div>
             <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Senha') }}</label>
-            <input id="password" class="block w-full px-4 py-2.5 rounded-none border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+            <input id="password" class="block w-full px-4 py-2.5  border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
             <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500 text-xs font-semibold" />
         </div>
 
         <!-- Remember Me & Register link -->
         <div class="flex items-center justify-between pt-1">
             <label for="remember_me" class="inline-flex items-center group cursor-pointer">
-                <input id="remember_me" type="checkbox" class="rounded-none border-gray-300 text-primary shadow-sm focus:ring-primary focus:ring-offset-0" name="remember">
+                <input id="remember_me" type="checkbox" class=" border-gray-300 text-primary shadow-sm focus:ring-primary focus:ring-offset-0" name="remember">
                 <span class="ms-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors font-medium">{{ __('Lembrar de mim') }}</span>
             </label>
             

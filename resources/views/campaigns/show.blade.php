@@ -45,7 +45,7 @@
         @else
             <div class="space-y-2">
                 @foreach ($campaign->posts as $post)
-                    <a href="{{ route('posts.edit', [$client, $post]) }}" class="flex items-center gap-3 p-3 rounded-none border border-gray-100 hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <a href="{{ route('posts.edit', [$client, $post]) }}" class="flex items-center gap-3 p-3  border border-gray-100 hover:border-primary/30 hover:bg-primary/5 transition-all">
                         <span class="material-symbols-outlined text-[18px] text-gray-500">{{ $post->content_type_icon }}</span>
                         <div class="flex-1 min-w-0">
                             <div class="text-sm font-medium text-gray-900 truncate">{{ $post->title }}</div>

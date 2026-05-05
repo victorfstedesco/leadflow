@@ -20,14 +20,14 @@
                 @if ($client->isMetaConnected())
                     <form method="POST" action="{{ route('campaigns.sync', $client) }}">
                         @csrf
-                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-none hover:bg-primary/90 transition-colors">
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold  hover:bg-primary/90 transition-colors">
                             <span class="material-symbols-outlined text-[16px]">sync</span>
                             Sincronizar
                         </button>
                     </form>
                 @else
                     <a href="{{ route('clients.settings', $client) }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-none hover:bg-primary/90 transition-colors">
+                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold  hover:bg-primary/90 transition-colors">
                         <span class="material-symbols-outlined text-[16px]">link</span>
                         Conectar Meta
                     </a>
@@ -61,7 +61,7 @@
                     </div>
                     <button @click="fetchPeriodInsights()"
                             :disabled="loading || !since || !until"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-none hover:bg-primary/90 transition-colors disabled:opacity-50">
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold  hover:bg-primary/90 transition-colors disabled:opacity-50">
                         <span class="material-symbols-outlined text-[16px]" :class="loading ? 'animate-spin' : ''">
                             <template x-if="loading">refresh</template>
                             <template x-if="!loading">search</template>
@@ -184,13 +184,13 @@
                             </div>
 
                             @if ($campaign->posts->isEmpty())
-                                <div class="rounded-none bg-gray-50 border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
+                                <div class=" bg-gray-50 border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
                                     Nenhuma postagem vinculada a esta campanha.
                                 </div>
                             @else
                                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                     @foreach ($campaign->posts as $post)
-                                        <div class="group relative bg-gray-50 rounded-none border border-gray-100 p-4 hover:border-primary/30 transition-all">
+                                        <div class="group relative bg-gray-50  border border-gray-100 p-4 hover:border-primary/30 transition-all">
                                             <div class="flex items-start gap-3">
                                                 <div class="w-9 h-9 bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
                                                     <span class="material-symbols-outlined text-[16px] text-gray-600">{{ $post->content_type_icon }}</span>
@@ -204,7 +204,7 @@
                                                   class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 @csrf @method('PATCH')
                                                 <input type="hidden" name="campaign_id" value="">
-                                                <button type="submit" class="w-6 h-6 rounded-none bg-red-50 border border-red-100 flex items-center justify-center hover:bg-red-100" title="Desvincular">
+                                                <button type="submit" class="w-6 h-6  bg-red-50 border border-red-100 flex items-center justify-center hover:bg-red-100" title="Desvincular">
                                                     <span class="material-symbols-outlined text-[14px] text-red-500">close</span>
                                                 </button>
                                             </form>
@@ -234,7 +234,7 @@
                  class="fixed inset-0 z-50 flex items-center justify-center p-4"
                  @keydown.escape.window="showLinkModal = false">
                 <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="showLinkModal = false"></div>
-                <div class="relative bg-white rounded-none shadow-2xl w-full max-w-lg border border-gray-100 overflow-hidden"
+                <div class="relative bg-white  shadow-2xl w-full max-w-lg border border-gray-100 overflow-hidden"
                      x-transition:enter="transition ease-out duration-200"
                      x-transition:enter-start="opacity-0 scale-95"
                      x-transition:enter-end="opacity-100 scale-100">
@@ -243,7 +243,7 @@
                             <h3 class="font-semibold text-gray-900">Vincular postagem</h3>
                             <p class="text-xs text-gray-500 mt-0.5">Campanha: <strong x-text="linkTargetName"></strong></p>
                         </div>
-                        <button @click="showLinkModal = false" class="w-8 h-8 rounded-none hover:bg-gray-100 flex items-center justify-center">
+                        <button @click="showLinkModal = false" class="w-8 h-8  hover:bg-gray-100 flex items-center justify-center">
                             <span class="material-symbols-outlined text-gray-400">close</span>
                         </button>
                     </div>
@@ -259,7 +259,7 @@
                                         @csrf @method('PATCH')
                                         <input type="hidden" name="campaign_id" x-bind:value="linkTargetId">
                                         <button type="submit"
-                                                class="w-full flex items-center gap-3 p-3 rounded-none border border-gray-100 hover:border-primary hover:bg-primary/5 transition-all text-left group">
+                                                class="w-full flex items-center gap-3 p-3  border border-gray-100 hover:border-primary hover:bg-primary/5 transition-all text-left group">
                                             <div class="w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
                                                 <span class="material-symbols-outlined text-[16px] text-gray-600">{{ $post->content_type_icon }}</span>
                                             </div>

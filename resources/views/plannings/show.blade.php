@@ -52,7 +52,7 @@
                         $barColor = $pct >= 100 ? 'bg-green-500' : ($pct >= 60 ? 'bg-primary' : 'bg-amber-400');
                     @endphp
                     <div class="flex items-start gap-4 px-6 py-5 border-b border-gray-50 last:border-0">
-                        <div class="w-10 h-10 rounded-none bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10  bg-primary/10 flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined text-primary-foreground text-[18px]">{{ $goal->category_icon }}</span>
                         </div>
                         <div class="flex-1 min-w-0">
@@ -62,8 +62,8 @@
                                     {{ number_format($pct, 0) }}%
                                 </span>
                             </div>
-                            <div class="w-full bg-gray-100 rounded-none h-2 mb-1.5">
-                                <div class="{{ $barColor }} h-2 rounded-none transition-all" style="width: {{ min(100, $pct) }}%"></div>
+                            <div class="w-full bg-gray-100  h-2 mb-1.5">
+                                <div class="{{ $barColor }} h-2  transition-all" style="width: {{ min(100, $pct) }}%"></div>
                             </div>
                             <div class="flex items-center justify-between text-xs text-gray-400">
                                 <span>
@@ -91,7 +91,7 @@
                         <form method="POST" action="{{ route('goals.destroy', [$client, $planning, $goal]) }}"
                               onsubmit="return confirm('Excluir meta?')">
                             @csrf @method('DELETE')
-                            <button type="submit" class="p-1.5 hover:bg-red-50 rounded-none mt-1">
+                            <button type="submit" class="p-1.5 hover:bg-red-50  mt-1">
                                 <span class="material-symbols-outlined text-[16px] text-red-400">delete</span>
                             </button>
                         </form>
@@ -124,8 +124,8 @@
                         @csrf
                         <div class="space-y-1.5 max-h-48 overflow-y-auto mb-3">
                             @foreach ($availableCampaigns as $c)
-                                <label class="flex items-center gap-2 p-1.5 rounded-none hover:bg-white cursor-pointer text-sm">
-                                    <input type="checkbox" name="campaign_ids[]" value="{{ $c->id }}" class="rounded-none ">
+                                <label class="flex items-center gap-2 p-1.5  hover:bg-white cursor-pointer text-sm">
+                                    <input type="checkbox" name="campaign_ids[]" value="{{ $c->id }}" class=" ">
                                     <span class="truncate">{{ $c->name }}</span>
                                 </label>
                             @endforeach
@@ -147,7 +147,7 @@
                                         {{ $campaign->name }}
                                     </a>
                                     <div class="flex items-center gap-2 mt-1">
-                                        <span class="w-1.5 h-1.5 rounded-none flex-shrink-0
+                                        <span class="w-1.5 h-1.5  flex-shrink-0
                                             {{ $campaign->meta_status === 'ACTIVE' ? 'bg-green-400' : 'bg-gray-300' }}"></span>
                                         <span class="text-xs text-gray-400">{{ $campaign->meta_status_label }}</span>
                                     </div>
@@ -155,7 +155,7 @@
                                 <form method="POST" action="{{ route('plannings.detach-campaign', [$client, $planning, $campaign]) }}"
                                       onsubmit="return confirm('Desvincular?')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="p-1 hover:bg-red-50 rounded-none ">
+                                    <button type="submit" class="p-1 hover:bg-red-50  ">
                                         <span class="material-symbols-outlined text-[15px] text-red-400">link_off</span>
                                     </button>
                                 </form>
