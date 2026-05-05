@@ -4,7 +4,7 @@
             <div class="flex items-center gap-10">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                     <span
-                        class="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-primary text-primary-foreground font-bold">L</span>
+                        class="inline-flex items-center justify-center h-8 w-8 rounded-none bg-primary text-primary-foreground font-bold">L</span>
                     <span class="font-bold text-lg tracking-tight text-gray-900">LeadFlow</span>
                 </a>
 
@@ -49,7 +49,7 @@
             </div>
 
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="p-2 rounded-md text-gray-500 hover:bg-gray-100">
+                <button @click="open = ! open" class="p-2 rounded-none text-gray-500 hover:bg-gray-100">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex"
                             stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -65,15 +65,15 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200">
         <div class="px-4 py-3 space-y-1">
             <a href="{{ route('dashboard') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
+                class="block px-3 py-2 rounded-none text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
             <a href="{{ route('clients.index') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Clientes</a>
+                class="block px-3 py-2 rounded-none text-sm font-medium text-gray-700 hover:bg-gray-100">Clientes</a>
             <a href="{{ route('profile.edit') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Perfil</a>
+                class="block px-3 py-2 rounded-none text-sm font-medium text-gray-700 hover:bg-gray-100">Perfil</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                    class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Sair</button>
+                    class="block w-full text-left px-3 py-2 rounded-none text-sm font-medium text-gray-700 hover:bg-gray-100">Sair</button>
             </form>
         </div>
     </div>

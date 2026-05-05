@@ -31,7 +31,7 @@ class ClientController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Client::create([
+        $client = Client::create([
             'user_id' => auth()->id(),
             'name' => $data['name'],
             'niche' => $data['niche'] ?? null,
@@ -39,7 +39,7 @@ class ClientController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        return redirect()->route('clients.index')->with('status', 'Cliente criado com sucesso.');
+        return redirect()->route('clients.settings', $client)->with('meta_prompt', true);
     }
 
     public function show(Client $client)
@@ -51,18 +51,10 @@ class ClientController extends Controller
         $totalPosts = $client->posts->count();
         $linkedPosts = $client->posts->whereNotNull('campaign_id')->count();
         $recentPosts = $client->posts->sortByDesc('created_at')->take(5)->values();
+        $campaignsActive = $client->campaigns()->where('meta_status', 'ACTIVE')->count();
+        $recentCampaigns = $client->campaigns()->orderByDesc('last_synced_at')->take(5)->get();
 
-        // Métricas mockadas de social media
-        $metrics = [
-            'reach' => '24.8K',
-            'reach_change' => '+12%',
-            'engagement' => '4.3%',
-            'engagement_change' => '+0.8%',
-            'posts_count' => $totalPosts,
-            'campaigns_active' => $client->campaigns()->where('meta_status', 'ACTIVE')->count(),
-        ];
-
-        return view('clients.show', compact('client', 'totalPosts', 'linkedPosts', 'recentPosts', 'metrics'));
+        return view('clients.show', compact('client', 'totalPosts', 'linkedPosts', 'recentPosts', 'campaignsActive', 'recentCampaigns'));
     }
 
     public function posts(Client $client)
@@ -73,34 +65,6 @@ class ClientController extends Controller
         $suggestions = $this->getPostSuggestions($client->niche);
 
         return view('clients.posts', compact('client', 'posts', 'suggestions'));
-    }
-
-    public function insights(Client $client)
-    {
-        abort_unless($client->user_id === auth()->id(), 403);
-
-        $client->load('posts');
-
-        // KPIs mockados
-        $kpis = [
-            'best_content' => 'Carrossel',
-            'best_time' => '18h–20h',
-            'avg_engagement' => '4.7%',
-            'follower_growth' => '+320',
-        ];
-
-        // Performance por tipo de conteúdo (mockado)
-        $contentPerformance = [
-            ['type' => 'Carrossel', 'engagement' => 6.2, 'reach' => 8400],
-            ['type' => 'Reels', 'engagement' => 5.8, 'reach' => 12300],
-            ['type' => 'Imagem', 'engagement' => 3.1, 'reach' => 4200],
-            ['type' => 'Story', 'engagement' => 2.4, 'reach' => 3100],
-        ];
-
-        // Insights contextuais baseados no nicho
-        $contextualInsights = $this->getNicheInsights($client->niche);
-
-        return view('clients.insights', compact('client', 'kpis', 'contentPerformance', 'contextualInsights'));
     }
 
     public function settings(Client $client)
@@ -138,33 +102,6 @@ class ClientController extends Controller
         $client->delete();
 
         return redirect()->route('clients.index')->with('status', 'Cliente removido.');
-    }
-
-    private function getNicheInsights(?string $niche): array
-    {
-        $insights = [
-            'Saúde' => [
-                ['icon' => 'local_hospital', 'title' => 'Conteúdo educativo performa melhor', 'text' => 'Posts educativos sobre prevenção e cuidados têm 3x mais engajamento que posts promocionais. Invista em carrosséis com dicas de saúde.'],
-                ['icon' => 'schedule', 'title' => 'Melhor horário: 7h–9h', 'text' => 'O público de saúde engaja mais no início da manhã. Agende posts informativos para esse período.'],
-                ['icon' => 'videocam', 'title' => 'Depoimentos em vídeo convertem', 'text' => 'Vídeos de depoimentos de pacientes têm taxa de conversão 45% maior para agendamento de consultas.'],
-            ],
-            'Gastronomia' => [
-                ['icon' => 'restaurant', 'title' => 'Bastidores da cozinha engajam', 'text' => 'Reels mostrando o preparo dos pratos performam 45% melhor que fotos estáticas do menu. Aposte em conteúdo autêntico.'],
-                ['icon' => 'schedule', 'title' => 'Poste entre 11h–13h', 'text' => 'Conteúdos publicados no horário de almoço geram 2x mais interações e salvamentos.'],
-                ['icon' => 'trending_up', 'title' => 'Promoções temáticas funcionam', 'text' => 'Campanhas vinculadas a datas comemorativas (Dia dos Namorados, inverno) tiveram ROI 60% superior.'],
-            ],
-            'Moda' => [
-                ['icon' => 'checkroom', 'title' => 'Carrosséis de looks geram saves', 'text' => 'Carrosséis com montagem de looks geram 2.5x mais salvamentos que fotos de produto isoladas.'],
-                ['icon' => 'schedule', 'title' => 'Melhor horário: 18h–20h', 'text' => 'O público de moda engaja mais no fim do dia. Priorize Reels e carrosséis nesse horário.'],
-                ['icon' => 'smart_display', 'title' => 'Try-on hauls no Reels', 'text' => 'Vídeos de "try-on" têm taxa de compartilhamento 3x maior e impulsionam tráfego para o e-commerce.'],
-            ],
-        ];
-
-        return $insights[$niche] ?? [
-            ['icon' => 'lightbulb', 'title' => 'Diversifique os formatos', 'text' => 'Alternar entre carrosséis, reels e stories mantém o algoritmo ativo e aumenta o alcance orgânico em até 35%.'],
-            ['icon' => 'schedule', 'title' => 'Consistência é chave', 'text' => 'Contas que postam ao menos 4x por semana têm crescimento de seguidores 2x mais rápido.'],
-            ['icon' => 'analytics', 'title' => 'Analise e adapte', 'text' => 'Revise as métricas semanalmente e ajuste a estratégia de conteúdo com base nos tipos que mais performam.'],
-        ];
     }
 
     private function getPostSuggestions(?string $niche): array

@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Campaign;
 use App\Models\Client;
 use App\Services\CampaignSyncService;
+use App\Services\MetaGraphService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
 
 class CampaignController extends Controller
 {
-    public function __construct(private CampaignSyncService $sync) {}
+    public function __construct(
+        private CampaignSyncService $sync,
+        private MetaGraphService $meta,
+    ) {}
 
     public function index(Client $client)
     {
@@ -53,5 +58,28 @@ class CampaignController extends Controller
         $campaign->load('posts');
 
         return view('campaigns.show', compact('client', 'campaign'));
+    }
+
+    public function insights(Request $request, Client $client, Campaign $campaign): JsonResponse
+    {
+        abort_unless($client->user_id === auth()->id(), 403);
+        abort_unless($campaign->client_id === $client->id, 404);
+
+        $data = $request->validate([
+            'since' => 'required|date_format:Y-m-d',
+            'until' => 'required|date_format:Y-m-d|after_or_equal:since',
+        ]);
+
+        try {
+            $insights = $this->meta->fetchInsightsForPeriod(
+                $client,
+                $campaign->meta_campaign_id,
+                $data['since'],
+                $data['until'],
+            );
+            return response()->json(['data' => $insights]);
+        } catch (Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
     }
 }

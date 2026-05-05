@@ -6,6 +6,20 @@
     </x-slot>
 
     <div class="max-w-2xl">
+
+        @if (session('meta_prompt') && ! $client->isMetaConnected())
+            <div class="mb-6 flex items-start gap-3 rounded-none border border-blue-200 bg-blue-50 px-5 py-4">
+                <span class="material-symbols-outlined text-blue-500 mt-0.5 text-[20px]">info</span>
+                <div>
+                    <p class="text-sm font-semibold text-blue-800">Cliente criado com sucesso!</p>
+                    <p class="text-sm text-blue-700 mt-0.5">Conecte a conta Meta para começar a sincronizar campanhas e acompanhar resultados.</p>
+                    <a href="{{ route('meta.redirect', $client) }}" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-900 underline underline-offset-2">
+                        Conectar conta Meta agora →
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <div class="mb-6">
             <h2 class="text-lg font-semibold text-gray-900">Configurações do cliente</h2>
             <p class="text-sm text-gray-500 mt-0.5">Atualize os dados, nicho e redes sociais deste cliente.</p>
@@ -35,8 +49,8 @@
                 <label class="label">Redes Sociais</label>
                 <div class="grid grid-cols-2 gap-2">
                     @foreach (['Instagram', 'TikTok', 'Facebook', 'LinkedIn', 'YouTube', 'X (Twitter)'] as $channel)
-                        <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
-                            <input type="checkbox" name="channels[]" value="{{ $channel }}" class="rounded text-primary focus:ring-primary"
+                        <label class="flex items-center gap-2 px-4 py-2.5 rounded-none border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input type="checkbox" name="channels[]" value="{{ $channel }}" class="rounded-none text-primary focus:ring-primary"
                                    @checked(is_array($client->channels) && in_array($channel, $client->channels))>
                             <span class="text-sm text-gray-700">{{ $channel }}</span>
                         </label>
@@ -130,15 +144,15 @@
     {{-- Modal de confirmação de exclusão --}}
     <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('delete-modal').classList.add('hidden')"></div>
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+        <div class="relative bg-white rounded-none shadow-xl w-full max-w-sm p-6 space-y-4">
             <h3 class="text-base font-semibold text-gray-900">Excluir cliente</h3>
             <p class="text-sm text-gray-500">Tem certeza? Todos os dados deste cliente serão removidos permanentemente. Essa ação não pode ser desfeita.</p>
             <div class="flex gap-3 justify-end pt-2">
-                <button type="button" onclick="document.getElementById('delete-modal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancelar</button>
+                <button type="button" onclick="document.getElementById('delete-modal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-none transition-colors">Cancelar</button>
                 <form method="POST" action="{{ route('clients.destroy', $client) }}">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">Excluir</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-none transition-colors">Excluir</button>
                 </form>
             </div>
         </div>

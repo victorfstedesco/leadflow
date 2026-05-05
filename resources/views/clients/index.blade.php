@@ -3,7 +3,8 @@
 
     <div class="mb-10 text-center sm:text-left">
         <h1 class="section-title">Clientes</h1>
-        <p class="text-gray-500 mt-2 text-sm sm:text-base">Gerencie os clientes da sua agência e acesse seus ambientes.</p>
+        <p class="text-gray-500 mt-2 text-sm sm:text-base">Gerencie os clientes da sua agência e acesse seus ambientes.
+        </p>
     </div>
 
     @if ($clients->isEmpty())
@@ -18,8 +19,10 @@
     @else
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {{-- Card para criar novo cliente --}}
-            <a href="{{ route('clients.create') }}" class="card flex flex-col items-center justify-center p-8 bg-gray-50/50 border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/5 transition-all group min-h-[220px]">
-                <div class="w-12 h-12 rounded-none bg-white border border-gray-200 flex items-center justify-center mb-4 group-hover:border-primary group-hover:text-primary-foreground transition-colors shadow-sm">
+            <a href="{{ route('clients.create') }}"
+                class="card flex flex-col items-center justify-center p-8 bg-gray-50/50 border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/5 transition-all group min-h-[220px]">
+                <div
+                    class="w-12 h-12 rounded-none bg-white border border-gray-200 flex items-center justify-center mb-4 group-hover:border-primary group-hover:text-primary-foreground transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary-foreground">add</span>
                 </div>
                 <h3 class="font-bold text-gray-700 group-hover:text-primary-foreground">Adicionar Cliente</h3>
@@ -27,16 +30,19 @@
             </a>
 
             @foreach ($clients as $client)
-                <a href="{{ route('clients.show', $client) }}" class="card p-8 hover:shadow-md hover:border-primary/20 transition group">
+                <a href="{{ route('clients.show', $client) }}"
+                    class="card p-8 hover:shadow-md hover:border-primary/20 transition group">
                     <div class="flex items-start justify-between mb-6">
-                        <div class="inline-flex h-12 w-12 items-center justify-center rounded-none bg-primary/20 text-primary-foreground font-bold text-lg">
+                        <div
+                            class="inline-flex h-12 w-12 items-center justify-center rounded-none bg-primary/20 text-primary-foreground font-bold text-lg">
                             {{ strtoupper(substr($client->name, 0, 2)) }}
                         </div>
                         @if ($client->niche)
                             <span class="badge bg-primary/20 text-primary-foreground">{{ $client->niche }}</span>
                         @endif
                     </div>
-                    <h2 class="font-semibold text-lg text-gray-900 group-hover:text-primary-foreground transition-colors">{{ $client->name }}</h2>
+                    <h2 class="font-semibold text-lg text-gray-900 group-hover:text-primary-foreground transition-colors">
+                        {{ $client->name }}</h2>
 
                     @if (!empty($client->channels))
                         <div class="flex flex-wrap gap-1.5 mt-3">
@@ -55,7 +61,8 @@
                                 <span class="material-symbols-outlined text-[16px] text-gray-400">edit_note</span>
                                 <span class="text-sm text-gray-500">{{ $client->posts_count }} postagens</span>
                             </div>
-                            <span class="material-symbols-outlined text-[18px] text-gray-300 group-hover:text-primary-foreground transition-colors">arrow_forward</span>
+                            <span
+                                class="material-symbols-outlined text-[18px] text-gray-300 group-hover:text-primary-foreground transition-colors">arrow_forward</span>
                         </div>
                     </div>
                 </a>

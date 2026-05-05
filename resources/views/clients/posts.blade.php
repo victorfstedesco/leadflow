@@ -47,7 +47,7 @@
 
                     {{-- Preview visual --}}
                     <div
-                        class="w-full h-24 rounded-sm bg-gradient-to-br from-gray-50 to-gray-100 mb-4 flex items-center justify-center border border-gray-100">
+                        class="w-full h-24 rounded-none bg-gradient-to-br from-gray-50 to-gray-100 mb-4 flex items-center justify-center border border-gray-100">
                         <span class="material-symbols-outlined text-3xl text-gray-300">{{ $post->content_type_icon }}</span>
                     </div>
 

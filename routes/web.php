@@ -24,7 +24,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/clientes', [ClientController::class, 'store'])->name('clients.store');
     Route::get('/clientes/{client}', [ClientController::class, 'show'])->name('clients.show');
     Route::get('/clientes/{client}/postagens', [ClientController::class, 'posts'])->name('clients.posts');
-    Route::get('/clientes/{client}/insights', [ClientController::class, 'insights'])->name('clients.insights');
     Route::get('/clientes/{client}/configuracoes', [ClientController::class, 'settings'])->name('clients.settings');
     Route::put('/clientes/{client}', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/clientes/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
@@ -40,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{client}/campanhas', [CampaignController::class, 'index'])->name('clients.campaigns');
     Route::post('/clientes/{client}/campanhas/sync', [CampaignController::class, 'sync'])->name('campaigns.sync');
     Route::get('/clientes/{client}/campanhas/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
+    Route::get('/clientes/{client}/campanhas/{campaign}/insights', [CampaignController::class, 'insights'])->name('campaigns.insights');
 
     // Planejamentos
     Route::get('/clientes/{client}/planejamentos', [PlanningController::class, 'index'])->name('plannings.index');

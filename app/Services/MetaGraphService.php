@@ -161,4 +161,26 @@ class MetaGraphService
 
         return $rows[0] ?? [];
     }
+
+    /**
+     * Fetch insights for a campaign within a specific date range.
+     */
+    public function fetchInsightsForPeriod(Client $client, string $metaCampaignId, string $since, string $until): array
+    {
+        if (! $client->isMetaConnected()) {
+            throw new RuntimeException('Cliente não está conectado ao Meta.');
+        }
+
+        $response = Http::get($this->baseUrl() . "/{$metaCampaignId}/insights", [
+            'access_token' => $client->meta_access_token,
+            'fields' => 'reach,impressions,clicks,ctr,cpc,spend,frequency',
+            'time_range' => json_encode(['since' => $since, 'until' => $until]),
+        ]);
+
+        if ($response->failed()) {
+            return [];
+        }
+
+        return $response->json('data.0', []);
+    }
 }
