@@ -1,20 +1,20 @@
-<nav x-data="{ open: false }" class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl">
+<nav x-data="{ open: false }" class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm">
     <div class="max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-10">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
                     <span
-                        class="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-primary text-primary-foreground font-bold">L</span>
-                    <span class="font-bold text-lg tracking-tight text-gray-900">LeadFlow</span>
+                        class="inline-flex items-center justify-center h-8 w-8 rounded bg-primary text-primary-foreground font-black group-hover:bg-primary-hover group-hover:-translate-y-0.5 transition-all">L</span>
+                    <span class="font-bold text-lg tracking-tight text-gray-900 group-hover:text-primary-foreground transition-colors">LeadFlow</span>
                 </a>
 
                 <div class="hidden sm:flex items-center gap-2">
                     <a href="{{ route('dashboard') }}"
-                        class="px-4 py-2 rounded-none text-sm font-semibold transition-all duration-300 {{ request()->routeIs('dashboard') ? 'bg-primary/20 text-primary-foreground' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
+                        class="px-4 py-2 rounded text-sm font-semibold transition-all duration-300 {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary-foreground' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
                         Dashboard
                     </a>
                     <a href="{{ route('clients.index') }}"
-                        class="px-4 py-2 rounded-none text-sm font-semibold transition-all duration-300 {{ request()->routeIs('clients.*') || request()->routeIs('posts.*') ? 'bg-primary/20 text-primary-foreground' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
+                        class="px-4 py-2 rounded text-sm font-semibold transition-all duration-300 {{ request()->routeIs('clients.*') || request()->routeIs('posts.*') ? 'bg-primary/10 text-primary-foreground' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
                         Clientes
                     </a>
                 </div>
@@ -22,15 +22,15 @@
 
             <div class="hidden sm:flex items-center gap-3">
                 <button
-                    class="material-symbols-outlined text-gray-400 hover:text-gray-700 transition">notifications</button>
-                <button class="material-symbols-outlined text-gray-400 hover:text-gray-700 transition">settings</button>
+                    class="material-symbols-outlined text-gray-400 hover:text-primary-foreground hover:bg-gray-100 p-2 rounded transition-all">notifications</button>
+                <button class="material-symbols-outlined text-gray-400 hover:text-primary-foreground hover:bg-gray-100 p-2 rounded transition-all">settings</button>
                 <div class="w-px h-6 bg-gray-200 mx-2"></div>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center gap-2 px-3 py-2 rounded-none text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
+                            class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                             <span
-                                class="inline-flex h-8 w-8 items-center justify-center rounded-none bg-gray-900 text-white shadow-sm font-bold tracking-wider">
+                                class="inline-flex h-8 w-8 items-center justify-center rounded bg-primary-foreground text-white shadow-sm font-bold tracking-wider">
                                 {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                             </span>
                         </button>
@@ -49,7 +49,7 @@
             </div>
 
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="p-2 rounded-md text-gray-500 hover:bg-gray-100">
+                <button @click="open = ! open" class="p-2  text-gray-500 hover:bg-gray-100">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex"
                             stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -65,15 +65,15 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200">
         <div class="px-4 py-3 space-y-1">
             <a href="{{ route('dashboard') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
+                class="block px-3 py-2  text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
             <a href="{{ route('clients.index') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Clientes</a>
+                class="block px-3 py-2  text-sm font-medium text-gray-700 hover:bg-gray-100">Clientes</a>
             <a href="{{ route('profile.edit') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Perfil</a>
+                class="block px-3 py-2  text-sm font-medium text-gray-700 hover:bg-gray-100">Perfil</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                    class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Sair</button>
+                    class="block w-full text-left px-3 py-2  text-sm font-medium text-gray-700 hover:bg-gray-100">Sair</button>
             </form>
         </div>
     </div>

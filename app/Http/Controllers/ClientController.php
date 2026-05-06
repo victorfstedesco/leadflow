@@ -31,7 +31,7 @@ class ClientController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Client::create([
+        $client = Client::create([
             'user_id' => auth()->id(),
             'name' => $data['name'],
             'niche' => $data['niche'] ?? null,
@@ -39,7 +39,7 @@ class ClientController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        return redirect()->route('clients.index')->with('status', 'Cliente criado com sucesso.');
+        return redirect()->route('clients.settings', $client)->with('meta_prompt', true);
     }
 
     public function show(Client $client)
@@ -49,20 +49,12 @@ class ClientController extends Controller
         $client->load('posts');
 
         $totalPosts = $client->posts->count();
-        $linkedPosts = $client->posts->whereNotNull('campaign')->count();
+        $linkedPosts = $client->posts->whereNotNull('campaign_id')->count();
         $recentPosts = $client->posts->sortByDesc('created_at')->take(5)->values();
+        $campaignsActive = $client->campaigns()->where('meta_status', 'ACTIVE')->count();
+        $recentCampaigns = $client->campaigns()->orderByDesc('last_synced_at')->take(5)->get();
 
-        // Métricas mockadas de social media
-        $metrics = [
-            'reach' => '24.8K',
-            'reach_change' => '+12%',
-            'engagement' => '4.3%',
-            'engagement_change' => '+0.8%',
-            'posts_count' => $totalPosts,
-            'campaigns_active' => 3,
-        ];
-
-        return view('clients.show', compact('client', 'totalPosts', 'linkedPosts', 'recentPosts', 'metrics'));
+        return view('clients.show', compact('client', 'totalPosts', 'linkedPosts', 'recentPosts', 'campaignsActive', 'recentCampaigns'));
     }
 
     public function posts(Client $client)
@@ -73,58 +65,6 @@ class ClientController extends Controller
         $suggestions = $this->getPostSuggestions($client->niche);
 
         return view('clients.posts', compact('client', 'posts', 'suggestions'));
-    }
-
-    public function campaigns(Client $client)
-    {
-        abort_unless($client->user_id === auth()->id(), 403);
-
-        // Campanhas estáticas com métricas mockadas
-        $campaigns = $this->getMockCampaigns($client);
-
-        // Para cada campanha, buscar posts REAIS do banco de dados vinculados
-        foreach ($campaigns as &$campaign) {
-            $campaign['linked_posts'] = $client->posts()
-                ->where('campaign', $campaign['name'])
-                ->get();
-        }
-
-        // Posts ainda não vinculados a nenhuma campanha
-        $unlinkedPosts = $client->posts()
-            ->whereNull('campaign')
-            ->orWhere('campaign', '')
-            ->where('client_id', $client->id)
-            ->get();
-
-        return view('clients.campaigns', compact('client', 'campaigns', 'unlinkedPosts'));
-    }
-
-    public function insights(Client $client)
-    {
-        abort_unless($client->user_id === auth()->id(), 403);
-
-        $client->load('posts');
-
-        // KPIs mockados
-        $kpis = [
-            'best_content' => 'Carrossel',
-            'best_time' => '18h–20h',
-            'avg_engagement' => '4.7%',
-            'follower_growth' => '+320',
-        ];
-
-        // Performance por tipo de conteúdo (mockado)
-        $contentPerformance = [
-            ['type' => 'Carrossel', 'engagement' => 6.2, 'reach' => 8400],
-            ['type' => 'Reels', 'engagement' => 5.8, 'reach' => 12300],
-            ['type' => 'Imagem', 'engagement' => 3.1, 'reach' => 4200],
-            ['type' => 'Story', 'engagement' => 2.4, 'reach' => 3100],
-        ];
-
-        // Insights contextuais baseados no nicho
-        $contextualInsights = $this->getNicheInsights($client->niche);
-
-        return view('clients.insights', compact('client', 'kpis', 'contentPerformance', 'contextualInsights'));
     }
 
     public function settings(Client $client)
@@ -162,134 +102,6 @@ class ClientController extends Controller
         $client->delete();
 
         return redirect()->route('clients.index')->with('status', 'Cliente removido.');
-    }
-
-    private function getMockCampaigns(Client $client): array
-    {
-        $niche = $client->niche ?? 'Geral';
-
-        $campaignsByNiche = [
-            'Saúde' => [
-                [
-                    'name' => 'Campanha Prevenção — Outubro',
-                    'period' => '01/10 – 31/10',
-                    'budget' => 'R$ 2.500',
-                    'status' => 'Ativa',
-                    'reach' => '18.4K',
-                    'impressions' => '42.1K',
-                    'clicks' => '1.230',
-                    'ctr' => '2.92%',
-                    'cpc' => 'R$ 2,03',
-                    'posts' => ['Carrossel: Dicas de prevenção', 'Vídeo: Depoimento paciente'],
-                ],
-                [
-                    'name' => 'Lançamento Teleconsulta',
-                    'period' => '15/09 – 15/10',
-                    'budget' => 'R$ 1.800',
-                    'status' => 'Finalizada',
-                    'reach' => '12.1K',
-                    'impressions' => '28.5K',
-                    'clicks' => '890',
-                    'ctr' => '3.12%',
-                    'cpc' => 'R$ 2,02',
-                    'posts' => ['Post: Teleconsulta disponível', 'Story: Passo a passo'],
-                ],
-            ],
-            'Gastronomia' => [
-                [
-                    'name' => 'Festival de Inverno',
-                    'period' => '01/06 – 30/06',
-                    'budget' => 'R$ 3.000',
-                    'status' => 'Ativa',
-                    'reach' => '32.7K',
-                    'impressions' => '68.3K',
-                    'clicks' => '2.450',
-                    'ctr' => '3.59%',
-                    'cpc' => 'R$ 1,22',
-                    'posts' => ['Reels: Bastidores da cozinha', 'Carrossel: Novo cardápio'],
-                ],
-                [
-                    'name' => 'Delivery Launch',
-                    'period' => '10/05 – 10/06',
-                    'budget' => 'R$ 2.200',
-                    'status' => 'Pausada',
-                    'reach' => '15.3K',
-                    'impressions' => '34.0K',
-                    'clicks' => '1.120',
-                    'ctr' => '3.29%',
-                    'cpc' => 'R$ 1,96',
-                    'posts' => ['Post: Peça pelo app', 'Vídeo: Unboxing delivery'],
-                ],
-            ],
-            'Moda' => [
-                [
-                    'name' => 'Coleção Verão 2026',
-                    'period' => '01/09 – 30/09',
-                    'budget' => 'R$ 5.000',
-                    'status' => 'Ativa',
-                    'reach' => '45.2K',
-                    'impressions' => '98.7K',
-                    'clicks' => '3.800',
-                    'ctr' => '3.85%',
-                    'cpc' => 'R$ 1,32',
-                    'posts' => ['Carrossel: Looks do dia', 'Reels: Try-on haul'],
-                ],
-                [
-                    'name' => 'Black Friday Antecipada',
-                    'period' => '10/11 – 30/11',
-                    'budget' => 'R$ 4.500',
-                    'status' => 'Finalizada',
-                    'reach' => '52.0K',
-                    'impressions' => '110.2K',
-                    'clicks' => '5.200',
-                    'ctr' => '4.72%',
-                    'cpc' => 'R$ 0,87',
-                    'posts' => ['Post: Contagem regressiva', 'Vídeo: Ofertas exclusivas'],
-                ],
-            ],
-        ];
-
-        return $campaignsByNiche[$niche] ?? [
-            [
-                'name' => 'Campanha de Lançamento',
-                'period' => '01/04 – 30/04',
-                'budget' => 'R$ 2.000',
-                'status' => 'Ativa',
-                'reach' => '10.5K',
-                'impressions' => '22.3K',
-                'clicks' => '780',
-                'ctr' => '3.50%',
-                'cpc' => 'R$ 2,56',
-                'posts' => ['Post: Lançamento oficial', 'Story: Bastidores'],
-            ],
-        ];
-    }
-
-    private function getNicheInsights(?string $niche): array
-    {
-        $insights = [
-            'Saúde' => [
-                ['icon' => 'local_hospital', 'title' => 'Conteúdo educativo performa melhor', 'text' => 'Posts educativos sobre prevenção e cuidados têm 3x mais engajamento que posts promocionais. Invista em carrosséis com dicas de saúde.'],
-                ['icon' => 'schedule', 'title' => 'Melhor horário: 7h–9h', 'text' => 'O público de saúde engaja mais no início da manhã. Agende posts informativos para esse período.'],
-                ['icon' => 'videocam', 'title' => 'Depoimentos em vídeo convertem', 'text' => 'Vídeos de depoimentos de pacientes têm taxa de conversão 45% maior para agendamento de consultas.'],
-            ],
-            'Gastronomia' => [
-                ['icon' => 'restaurant', 'title' => 'Bastidores da cozinha engajam', 'text' => 'Reels mostrando o preparo dos pratos performam 45% melhor que fotos estáticas do menu. Aposte em conteúdo autêntico.'],
-                ['icon' => 'schedule', 'title' => 'Poste entre 11h–13h', 'text' => 'Conteúdos publicados no horário de almoço geram 2x mais interações e salvamentos.'],
-                ['icon' => 'trending_up', 'title' => 'Promoções temáticas funcionam', 'text' => 'Campanhas vinculadas a datas comemorativas (Dia dos Namorados, inverno) tiveram ROI 60% superior.'],
-            ],
-            'Moda' => [
-                ['icon' => 'checkroom', 'title' => 'Carrosséis de looks geram saves', 'text' => 'Carrosséis com montagem de looks geram 2.5x mais salvamentos que fotos de produto isoladas.'],
-                ['icon' => 'schedule', 'title' => 'Melhor horário: 18h–20h', 'text' => 'O público de moda engaja mais no fim do dia. Priorize Reels e carrosséis nesse horário.'],
-                ['icon' => 'smart_display', 'title' => 'Try-on hauls no Reels', 'text' => 'Vídeos de "try-on" têm taxa de compartilhamento 3x maior e impulsionam tráfego para o e-commerce.'],
-            ],
-        ];
-
-        return $insights[$niche] ?? [
-            ['icon' => 'lightbulb', 'title' => 'Diversifique os formatos', 'text' => 'Alternar entre carrosséis, reels e stories mantém o algoritmo ativo e aumenta o alcance orgânico em até 35%.'],
-            ['icon' => 'schedule', 'title' => 'Consistência é chave', 'text' => 'Contas que postam ao menos 4x por semana têm crescimento de seguidores 2x mais rápido.'],
-            ['icon' => 'analytics', 'title' => 'Analise e adapte', 'text' => 'Revise as métricas semanalmente e ajuste a estratégia de conteúdo com base nos tipos que mais performam.'],
-        ];
     }
 
     private function getPostSuggestions(?string $niche): array

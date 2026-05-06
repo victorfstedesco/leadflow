@@ -24,9 +24,9 @@
      x-transition:leave-end="opacity-0 translate-y-4"
      class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4">
     
-    <div class="bg-white rounded-sm border border-gray-100 shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] px-5 py-4 flex items-start gap-4">
+    <div class="bg-white  border border-gray-100 shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] px-5 py-4 flex items-start gap-4">
         {{-- Icon --}}
-        <div class="w-9 h-9 rounded-none flex items-center justify-center flex-shrink-0
+        <div class="w-9 h-9  flex items-center justify-center flex-shrink-0
             {{ match($toast['type']) {
                 'success' => 'bg-green-50 border border-green-100',
                 'error' => 'bg-red-50 border border-red-100',
@@ -61,7 +61,7 @@
 
         {{-- Close button --}}
         <button @click="show = false"
-                class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors -mt-0.5 -mr-1">
+                class="w-7 h-7  hover:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors -mt-0.5 -mr-1">
             <span class="material-symbols-outlined text-[16px] text-gray-400">close</span>
         </button>
     </div>

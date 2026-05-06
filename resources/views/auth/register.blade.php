@@ -10,14 +10,14 @@
         <!-- Name -->
         <div>
             <label for="name" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Nome completo') }}</label>
-            <input id="name" class="block w-full px-4 py-2.5 rounded-sm border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Ex: João da Silva" />
+            <input id="name" class="block w-full px-4 py-2.5  border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Ex: João da Silva" />
             <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-500 text-xs font-semibold" />
         </div>
 
         <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('E-mail') }}</label>
-            <input id="email" class="block w-full px-4 py-2.5 rounded-sm border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="seu@email.com.br" />
+            <input id="email" class="block w-full px-4 py-2.5  border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="seu@email.com.br" />
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500 text-xs font-semibold" />
         </div>
 
@@ -25,14 +25,14 @@
             <!-- Password -->
             <div>
                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Senha') }}</label>
-                <input id="password" class="block w-full px-4 py-2.5 rounded-sm border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="password" name="password" required autocomplete="new-password" placeholder="Mínimo 8 carac." />
+                <input id="password" class="block w-full px-4 py-2.5  border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="password" name="password" required autocomplete="new-password" placeholder="Mínimo 8 carac." />
                 <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500 text-xs font-semibold" />
             </div>
 
             <!-- Confirm Password -->
             <div>
                 <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Confirmar Senha') }}</label>
-                <input id="password_confirmation" class="block w-full px-4 py-2.5 rounded-sm border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repita a senha" />
+                <input id="password_confirmation" class="block w-full px-4 py-2.5  border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all text-sm placeholder-gray-400 bg-gray-50/50" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repita a senha" />
                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-500 text-xs font-semibold" />
             </div>
         </div>
