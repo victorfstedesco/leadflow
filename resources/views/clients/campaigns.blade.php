@@ -49,8 +49,23 @@
 
         {{-- Filtro de período --}}
         @if ($campaigns->isNotEmpty() && $client->isMetaConnected())
-            <div class="card p-4">
-                <div class="flex flex-wrap items-end gap-3">
+            <div class="card p-4 space-y-3">
+
+                {{-- Presets --}}
+                <div class="flex flex-wrap gap-1.5">
+                    <template x-for="preset in presets" :key="preset.key">
+                        <button @click="applyPreset(preset.key)"
+                                :class="activePreset === preset.key
+                                    ? 'bg-primary text-primary-foreground shadow-sm'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                                class="px-3 py-1.5 text-xs font-semibold transition-colors"
+                                x-text="preset.label">
+                        </button>
+                    </template>
+                </div>
+
+                {{-- Inputs personalizados --}}
+                <div x-show="activePreset === 'custom'" x-transition class="flex flex-wrap items-end gap-3">
                     <div>
                         <label class="label text-xs">De</label>
                         <input type="date" x-model="since" class="input py-1.5 text-sm">
@@ -61,23 +76,32 @@
                     </div>
                     <button @click="fetchPeriodInsights()"
                             :disabled="loading || !since || !until"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold  hover:bg-primary/90 transition-colors disabled:opacity-50">
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-50">
                         <span class="material-symbols-outlined text-[16px]" :class="loading ? 'animate-spin' : ''">
                             <template x-if="loading">refresh</template>
                             <template x-if="!loading">search</template>
                         </span>
-                        <span x-text="loading ? 'Buscando...' : 'Buscar período'"></span>
+                        <span x-text="loading ? 'Buscando...' : 'Buscar'"></span>
                     </button>
-                    <button x-show="periodActive" @click="clearPeriod()"
-                            class="text-sm text-gray-400 hover:text-gray-600 underline">
-                        Limpar (all time)
-                    </button>
-                    <span x-show="periodActive" class="text-xs text-primary-foreground font-semibold flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">filter_alt</span>
-                        Exibindo dados do período selecionado
+                </div>
+
+                {{-- Status --}}
+                <div class="flex items-center gap-3 min-h-[18px]">
+                    <span x-show="loading" class="text-xs text-gray-400 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px] animate-spin">refresh</span>
+                        Buscando dados...
                     </span>
+                    <span x-show="periodActive && !loading" class="text-xs text-primary font-semibold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">filter_alt</span>
+                        <span x-text="periodLabel"></span>
+                    </span>
+                    <button x-show="periodActive && !loading" @click="clearPeriod()"
+                            class="text-xs text-gray-400 hover:text-gray-600 underline">
+                        Limpar filtro
+                    </button>
                     <p x-show="error" x-text="error" class="text-xs text-red-500"></p>
                 </div>
+
             </div>
         @endif
 
@@ -290,11 +314,93 @@
                 until: '',
                 loading: false,
                 periodActive: false,
+                activePreset: null,
+                periodLabel: '',
                 error: '',
                 periodInsights: {},
 
+                init() {
+                    this.applyPreset('today');
+                },
+
+                presets: [
+                    { key: 'today',      label: 'Hoje' },
+                    { key: 'yesterday',  label: 'Ontem' },
+                    { key: 'last7',      label: 'Últ. 7 dias' },
+                    { key: 'last30',     label: 'Últ. 30 dias' },
+                    { key: 'thisMonth',  label: 'Este mês' },
+                    { key: 'lastMonth',  label: 'Mês passado' },
+                    { key: 'q1',         label: 'Q1' },
+                    { key: 'q2',         label: 'Q2' },
+                    { key: 'q3',         label: 'Q3' },
+                    { key: 'q4',         label: 'Q4' },
+                    { key: 'ytd',        label: 'YTD' },
+                    { key: 'custom',     label: 'Personalizado' },
+                ],
+
+                getPresetRange(key) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = now.getMonth();
+                    const fmt = d => d.toISOString().slice(0, 10);
+                    const ymd = (y, m, d) => fmt(new Date(y, m, d));
+                    const today = fmt(now);
+
+                    switch (key) {
+                        case 'today':
+                            return { since: today, until: today, label: 'Hoje' };
+                        case 'yesterday': {
+                            const d = new Date(now); d.setDate(d.getDate() - 1);
+                            const yd = fmt(d);
+                            return { since: yd, until: yd, label: 'Ontem' };
+                        }
+                        case 'last7': {
+                            const d = new Date(now); d.setDate(d.getDate() - 6);
+                            return { since: fmt(d), until: today, label: 'Últimos 7 dias' };
+                        }
+                        case 'last30': {
+                            const d = new Date(now); d.setDate(d.getDate() - 29);
+                            return { since: fmt(d), until: today, label: 'Últimos 30 dias' };
+                        }
+                        case 'thisMonth':
+                            return { since: ymd(year, month, 1), until: today, label: 'Este mês' };
+                        case 'lastMonth': {
+                            const lm = month === 0 ? 11 : month - 1;
+                            const ly = month === 0 ? year - 1 : year;
+                            const lastDay = new Date(year, month, 0).getDate();
+                            return { since: ymd(ly, lm, 1), until: ymd(ly, lm, lastDay), label: 'Mês passado' };
+                        }
+                        case 'q1': return { since: ymd(year, 0, 1),  until: ymd(year, 2, 31), label: `Q1 ${year}` };
+                        case 'q2': return { since: ymd(year, 3, 1),  until: ymd(year, 5, 30), label: `Q2 ${year}` };
+                        case 'q3': return { since: ymd(year, 6, 1),  until: ymd(year, 8, 30), label: `Q3 ${year}` };
+                        case 'q4': return { since: ymd(year, 9, 1),  until: ymd(year, 11, 31), label: `Q4 ${year}` };
+                        case 'ytd': return { since: ymd(year, 0, 1), until: today, label: `YTD ${year}` };
+                        default: return null;
+                    }
+                },
+
+                applyPreset(key) {
+                    this.activePreset = key;
+                    this.error = '';
+                    if (key === 'custom') {
+                        this.since = '';
+                        this.until = '';
+                        return;
+                    }
+                    const range = this.getPresetRange(key);
+                    if (!range) return;
+                    this.since = range.since;
+                    this.until = range.until;
+                    this.periodLabel = range.label;
+                    this.fetchPeriodInsights();
+                },
+
                 async fetchPeriodInsights() {
                     if (!this.since || !this.until) return;
+                    if (this.activePreset === 'custom') {
+                        const fmtDate = s => new Date(s + 'T00:00:00').toLocaleDateString('pt-BR');
+                        this.periodLabel = `${fmtDate(this.since)} → ${fmtDate(this.until)}`;
+                    }
                     this.loading = true;
                     this.error = '';
                     this.periodInsights = {};
@@ -303,9 +409,7 @@
                         const ids = Object.keys(CAMPAIGN_ROUTES);
                         const results = await Promise.all(ids.map(async id => {
                             const url = CAMPAIGN_ROUTES[id] + `?since=${this.since}&until=${this.until}`;
-                            const res = await fetch(url, {
-                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                            });
+                            const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                             const json = await res.json();
                             return { id: parseInt(id), data: json.data ?? {} };
                         }));
@@ -324,6 +428,8 @@
                     this.until = '';
                     this.periodInsights = {};
                     this.periodActive = false;
+                    this.activePreset = null;
+                    this.periodLabel = '';
                     this.error = '';
                 },
 
