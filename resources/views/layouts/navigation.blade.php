@@ -37,6 +37,8 @@
                     </x-slot>
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
+                        <x-dropdown-link :href="route('privacy')">Política de Privacidade</x-dropdown-link>
+                        <div class="border-t border-gray-100 my-1"></div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
@@ -70,6 +72,8 @@
                 class="block px-3 py-2  text-sm font-medium text-gray-700 hover:bg-gray-100">Clientes</a>
             <a href="{{ route('profile.edit') }}"
                 class="block px-3 py-2  text-sm font-medium text-gray-700 hover:bg-gray-100">Perfil</a>
+            <a href="{{ route('privacy') }}"
+                class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Política de Privacidade</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"

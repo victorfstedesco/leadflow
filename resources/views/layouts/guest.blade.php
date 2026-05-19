@@ -29,8 +29,11 @@
                 {{ $slot }}
             </div>
             
-            <div class="mt-8 text-xs text-gray-400">
-                &copy; {{ date('Y') }} {{ config('app.name', 'Leadflow') }}. Todos os direitos reservados.
+            <div class="mt-8 text-xs text-gray-400 text-center space-y-1">
+                <div>
+                    <a href="{{ route('privacy') }}" class="hover:text-gray-600 underline underline-offset-2 transition-colors">Política de Privacidade</a>
+                </div>
+                <div>&copy; {{ date('Y') }} {{ config('app.name', 'Leadflow') }}. Todos os direitos reservados.</div>
             </div>
         </div>
     </body>
