@@ -7,11 +7,13 @@ use App\Http\Controllers\MetaAuthController;
 use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\PlanningGoalController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/privacidade', fn () => view('privacy'))->name('privacy');
+Route::get('/apresentacao/{token}', [PresentationController::class, 'show'])->name('presentation.show');
 
 Route::get('/', function () {
     return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
@@ -42,6 +44,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/clientes/{client}/campanhas/sync', [CampaignController::class, 'sync'])->name('campaigns.sync');
     Route::get('/clientes/{client}/campanhas/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
     Route::get('/clientes/{client}/campanhas/{campaign}/insights', [CampaignController::class, 'insights'])->name('campaigns.insights');
+
+    // Apresentações
+    Route::get('/clientes/{client}/apresentacoes', [PresentationController::class, 'index'])->name('presentations.index');
+    Route::post('/clientes/{client}/apresentacoes', [PresentationController::class, 'store'])->name('presentations.store');
+    Route::patch('/clientes/{client}/apresentacoes/{presentation}/desativar', [PresentationController::class, 'deactivate'])->name('presentations.deactivate');
 
     // Planejamentos
     Route::get('/clientes/{client}/planejamentos', [PlanningController::class, 'index'])->name('plannings.index');

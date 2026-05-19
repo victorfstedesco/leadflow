@@ -17,6 +17,13 @@
                 @endif
             </div>
             <div class="flex items-center gap-2">
+                @if ($campaigns->isNotEmpty())
+                    <button @click="showPresentModal = true"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-foreground text-white text-sm font-bold hover:bg-primary-foreground/90 transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">present_to_all</span>
+                        Apresentar
+                    </button>
+                @endif
                 @if ($client->isMetaConnected())
                     <form method="POST" action="{{ route('campaigns.sync', $client) }}">
                         @csrf
@@ -301,12 +308,175 @@
                 </div>
             </div>
         </div>
+
+    {{-- Modal: Modo Apresentação --}}
+    <div x-show="showPresentModal" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         @keydown.escape.window="showPresentModal = false">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="!presentUrl && (showPresentModal = false)"></div>
+        <div class="relative bg-white shadow-2xl w-full max-w-lg border border-gray-100 overflow-hidden"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+
+            {{-- Header do modal --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div>
+                    <h3 class="font-semibold text-gray-900">Criar apresentação</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Selecione as campanhas e gere um link para o cliente.</p>
+                </div>
+                <button @click="closePresentModal()" class="w-8 h-8 hover:bg-gray-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-gray-400">close</span>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+
+                {{-- Link gerado --}}
+                <template x-if="presentUrl">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 text-green-600 bg-green-50 border border-green-100 px-4 py-3">
+                            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                            <span class="text-sm font-semibold">Apresentação criada com sucesso!</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Link da apresentação</label>
+                            <div class="flex gap-2">
+                                <input type="text" :value="presentUrl" readonly
+                                       class="flex-1 px-3 py-2 text-sm border border-gray-200 bg-gray-50 text-gray-700 select-all">
+                                <button @click="copyUrl()"
+                                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-foreground text-white text-sm font-bold hover:bg-primary-foreground/90 transition-colors">
+                                    <span class="material-symbols-outlined text-[16px]" x-text="copied ? 'check' : 'content_copy'"></span>
+                                    <span x-text="copied ? 'Copiado!' : 'Copiar'"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a :href="presentUrl" target="_blank"
+                               class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                                Abrir apresentação
+                            </a>
+                            <button @click="resetPresent()"
+                                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">add</span>
+                                Nova apresentação
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Formulário --}}
+                <template x-if="!presentUrl">
+                    <div class="space-y-5">
+
+                        {{-- Título opcional --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Título (opcional)</label>
+                            <input type="text" x-model="presentTitle" placeholder="Ex: Relatório Mai/2026"
+                                   class="w-full px-3 py-2 text-sm border border-gray-200 bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all">
+                        </div>
+
+                        {{-- Período --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Período dos dados</label>
+                            <div class="flex flex-wrap gap-1.5 mb-2">
+                                <template x-for="p in presentPresets" :key="p.key">
+                                    <button type="button" @click="applyPresentPreset(p.key)"
+                                            :class="presentPreset === p.key ? 'bg-primary-foreground text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                                            class="px-3 py-1 text-xs font-semibold transition-colors"
+                                            x-text="p.label">
+                                    </button>
+                                </template>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] text-gray-400 font-semibold uppercase">De</label>
+                                    <input type="date" x-model="presentSince"
+                                           @change="presentPreset = 'custom'"
+                                           class="w-full px-3 py-2 text-sm border border-gray-200 bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-gray-400 font-semibold uppercase">Até</label>
+                                    <input type="date" x-model="presentUntil"
+                                           @change="presentPreset = 'custom'"
+                                           class="w-full px-3 py-2 text-sm border border-gray-200 bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none">
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-gray-400 mt-1.5">
+                                Os dados serão capturados agora e salvos — nenhuma chamada à Meta será feita na página do cliente.
+                            </p>
+                        </div>
+
+                        {{-- Campanhas --}}
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Campanhas</label>
+                                <button @click="toggleAllCampaigns()" class="text-xs text-primary-foreground font-semibold hover:underline" x-text="allSelected ? 'Desmarcar todas' : 'Selecionar todas'"></button>
+                            </div>
+                            <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                                @foreach ($campaigns as $campaign)
+                                    @php
+                                        $dot = match($campaign->meta_status) {
+                                            'ACTIVE' => 'bg-green-400',
+                                            'PAUSED' => 'bg-amber-400',
+                                            default  => 'bg-gray-300',
+                                        };
+                                    @endphp
+                                    <label class="flex items-center gap-3 p-3 border border-gray-100 hover:border-primary/30 hover:bg-primary/5 cursor-pointer transition-all"
+                                           :class="selectedCampaignIds.includes({{ $campaign->id }}) ? 'border-primary/30 bg-primary/5' : ''">
+                                        <input type="checkbox" :value="{{ $campaign->id }}"
+                                               x-model="selectedCampaignIds"
+                                               class="text-primary-foreground border-gray-300 focus:ring-primary">
+                                        <span class="w-2 h-2 rounded-full {{ $dot }} flex-shrink-0"></span>
+                                        <span class="text-sm font-medium text-gray-800 flex-1 truncate">{{ $campaign->name }}</span>
+                                        <span class="text-[10px] font-semibold text-gray-400">{{ $campaign->meta_status_label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            <p x-show="presentError" x-text="presentError" class="text-xs text-red-500 mt-2"></p>
+                        </div>
+
+                        {{-- Validade --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Validade do link</label>
+                            <select x-model="presentExpiresIn"
+                                    class="w-full px-3 py-2 text-sm border border-gray-200 bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none">
+                                <option value="">Sem expiração</option>
+                                <option value="1">1 dia</option>
+                                <option value="3">3 dias</option>
+                                <option value="7">7 dias</option>
+                                <option value="30">30 dias</option>
+                            </select>
+                        </div>
+
+                        {{-- Botão --}}
+                        <button @click="createPresentation()"
+                                :disabled="presentLoading || selectedCampaignIds.length === 0"
+                                class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-primary-foreground text-white text-sm font-bold hover:bg-primary-foreground/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined text-[18px]" :class="presentLoading ? 'animate-spin' : ''">
+                                <template x-if="presentLoading">refresh</template>
+                                <template x-if="!presentLoading">present_to_all</template>
+                            </span>
+                            <span x-text="presentLoading ? 'Gerando link...' : 'Gerar link de apresentação'"></span>
+                        </button>
+
+                    </div>
+                </template>
+
+            </div>
+        </div>
     </div>
+
+    </div>{{-- fecha campaignsPage() --}}
 
     <script>
         const CAMPAIGN_ROUTES = @json($campaigns->mapWithKeys(fn($c) => [
             $c->id => route('campaigns.insights', [$client, $c])
         ]));
+
+        const PRESENT_STORE_URL = '{{ route('presentations.store', $client) }}';
+        const ALL_CAMPAIGN_IDS = @json($campaigns->pluck('id'));
 
         function campaignsPage() {
             return {
@@ -319,8 +489,103 @@
                 error: '',
                 periodInsights: {},
 
+                // Apresentação
+                showPresentModal: false,
+                selectedCampaignIds: [],
+                presentTitle: '',
+                presentSince: '',
+                presentUntil: '',
+                presentPreset: '',
+                presentExpiresIn: '',
+                presentUrl: '',
+                presentLoading: false,
+                presentError: '',
+                copied: false,
+
+                presentPresets: [
+                    { key: 'last7',     label: 'Últ. 7 dias' },
+                    { key: 'last30',    label: 'Últ. 30 dias' },
+                    { key: 'thisMonth', label: 'Este mês' },
+                    { key: 'lastMonth', label: 'Mês passado' },
+                    { key: 'custom',    label: 'Personalizado' },
+                ],
+
+                applyPresentPreset(key) {
+                    this.presentPreset = key;
+                    if (key === 'custom') return;
+                    const range = this.getPresetRange(key);
+                    if (range) { this.presentSince = range.since; this.presentUntil = range.until; }
+                },
+
+                get allSelected() {
+                    return ALL_CAMPAIGN_IDS.length > 0 &&
+                        ALL_CAMPAIGN_IDS.every(id => this.selectedCampaignIds.includes(id));
+                },
+
+                toggleAllCampaigns() {
+                    this.selectedCampaignIds = this.allSelected ? [] : [...ALL_CAMPAIGN_IDS];
+                },
+
+                closePresentModal() {
+                    this.showPresentModal = false;
+                    this.resetPresent();
+                },
+
+                resetPresent() {
+                    this.presentUrl = '';
+                    this.presentError = '';
+                    this.selectedCampaignIds = [];
+                    this.presentTitle = '';
+                    this.presentSince = '';
+                    this.presentUntil = '';
+                    this.presentPreset = '';
+                    this.presentExpiresIn = '';
+                    this.copied = false;
+                },
+
+                async createPresentation() {
+                    if (this.selectedCampaignIds.length === 0) {
+                        this.presentError = 'Selecione ao menos uma campanha.';
+                        return;
+                    }
+                    this.presentLoading = true;
+                    this.presentError = '';
+                    try {
+                        const res = await fetch(PRESENT_STORE_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                campaign_ids: this.selectedCampaignIds,
+                                title: this.presentTitle || null,
+                                since: this.presentSince || null,
+                                until: this.presentUntil || null,
+                                expires_in: this.presentExpiresIn || null,
+                            }),
+                        });
+                        if (!res.ok) throw new Error();
+                        const json = await res.json();
+                        this.presentUrl = json.url;
+                    } catch {
+                        this.presentError = 'Erro ao gerar o link. Tente novamente.';
+                    } finally {
+                        this.presentLoading = false;
+                    }
+                },
+
+                async copyUrl() {
+                    await navigator.clipboard.writeText(this.presentUrl);
+                    this.copied = true;
+                    setTimeout(() => { this.copied = false; }, 2000);
+                },
+
                 init() {
-                    this.applyPreset('today');
+                    if (Object.keys(CAMPAIGN_ROUTES).length > 0) {
+                        this.applyPreset('today');
+                    }
                 },
 
                 presets: [
